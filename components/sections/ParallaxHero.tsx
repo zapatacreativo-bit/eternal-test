@@ -76,8 +76,12 @@ export function ParallaxHero() {
                     transition={{ duration: 0.8, delay: 0.6 }}
                     className="flex flex-col sm:flex-row items-center justify-center gap-6"
                 >
-                    <Button size="lg" className="h-16 px-10 text-lg bg-primary hover:bg-primary/90 rounded-full shadow-[0_0_30px_-5px_var(--color-primary)] transition-shadow">
-                        Generar Blueprint GRATIS
+                    <Button
+                        size="lg"
+                        onClick={() => document.getElementById('blueprint-funnel')?.scrollIntoView({ behavior: 'smooth' })}
+                        className="h-16 px-10 text-lg bg-primary hover:bg-primary/90 rounded-full shadow-[0_0_30px_-5px_var(--color-primary)] transition-shadow"
+                    >
+                        Calcula Nuestro Potencial
                         <ArrowRight className="ml-2 w-6 h-6" />
                     </Button>
                     <Button size="lg" variant="outline" className="h-16 px-10 text-lg text-white border-white/20 hover:bg-white/10 rounded-full backdrop-blur-md">

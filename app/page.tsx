@@ -1,7 +1,7 @@
 import { ParallaxHero } from "@/components/sections/ParallaxHero";
 import { ServicesGrid } from "@/components/sections/ServicesGrid";
 import { TechAuthority } from "@/components/sections/TechAuthority";
-import { VideoSection } from "@/components/sections/VideoSection";
+import { WorkflowSimulation } from "@/components/sections/WorkflowSimulation";
 import { FlowDiagram } from "@/components/sections/FlowDiagram";
 import { FunnelContainer } from "@/components/funnel/FunnelContainer";
 import { SalesCTA } from "@/components/sections/SalesCTA";
@@ -25,8 +25,8 @@ export default function Home() {
       {/* 5. Interactive Funnel (Core Feature) */}
       <FunnelContainer />
 
-      {/* 6. Video Proof Section */}
-      <VideoSection />
+      {/* 6. Motion Simulation Section */}
+      <WorkflowSimulation />
 
       {/* 7. Final Sales Call to Action */}
       <SalesCTA />

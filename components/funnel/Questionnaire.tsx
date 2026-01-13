@@ -34,12 +34,21 @@ const PAIN_POINTS = [
     "Agenda desorganizada",
     "Marketing desconectado"
 ];
-const GOALS = ["Ahorrar tiempo operativo", "Reducir costos de personal", "Escalar ventas 2x", "Mejorar calidad de servicio"];
+const GOALS = [
+    "Ahorrar tiempo operativo", "Reducir costos de personal", "Escalar ventas 2x", "Mejorar calidad de servicio",
+    "Sistematizar procesos clave", "Lanzar nuevos productos", "Mejorar retención clientes",
+    "Automatizar soporte nivel 1", "Reducir errores humanos", "Optimizar campañas ads"
+];
+const PROFILE_CHECKS = [
+    "Tengo CRM implementado", "Invierto en publicidad digital", "Tengo equipo de ventas",
+    "Documento mis procesos", "Tengo base de datos de clientes", "Uso herramientas de Email Marketing",
+    "Busco implementación rápida", "Tengo presupuesto asignado"
+];
 const BUDGETS = ["< 1.000€", "1.000€ - 5.000€", "5.000€ - 10.000€", "+10.000€"];
 
 export function Questionnaire({ onSubmit }: QuestionnaireProps) {
     const [step, setStep] = useState(1);
-    const totalSteps = 3;
+    const totalSteps = 4;
 
     const { control, handleSubmit, watch, trigger, formState: { errors } } = useForm<QuestionnaireData>({
         resolver: zodResolver(questionnaireSchema),
@@ -49,6 +58,7 @@ export function Questionnaire({ onSubmit }: QuestionnaireProps) {
             painPoints: [],
             goal: "",
             budget: "",
+            profileChecks: [],
         }
     });
 
@@ -56,6 +66,7 @@ export function Questionnaire({ onSubmit }: QuestionnaireProps) {
         let isValid = false;
         if (step === 1) isValid = await trigger(["businessType", "teamSize"]);
         if (step === 2) isValid = await trigger(["painPoints"]);
+        if (step === 3) isValid = await trigger(["goal", "budget"]);
 
         if (isValid) setStep(s => s + 1);
     };
@@ -228,6 +239,43 @@ export function Questionnaire({ onSubmit }: QuestionnaireProps) {
                                 )}
                             />
                         </div>
+                    </div>
+                )}
+
+                {/* STEP 4: Profile Analysis */}
+                {step === 4 && (
+                    <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
+                        <Label className="text-lg">Análisis de Perfil (Marca lo que aplique)</Label>
+                        <Controller
+                            control={control}
+                            name="profileChecks"
+                            render={({ field }) => (
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {PROFILE_CHECKS.map((item) => (
+                                        <div
+                                            key={item}
+                                            className={cn(
+                                                "flex items-center space-x-3 border p-4 rounded-lg cursor-pointer transition-all hover:bg-white/5",
+                                                field.value?.includes(item) ? "border-primary bg-primary/10" : "border-white/10"
+                                            )}
+                                            onClick={() => {
+                                                const newValue = field.value?.includes(item)
+                                                    ? field.value.filter((i) => i !== item)
+                                                    : [...(field.value || []), item];
+                                                field.onChange(newValue);
+                                            }}
+                                        >
+                                            <div className={cn("w-5 h-5 rounded border flex items-center justify-center transition-colors",
+                                                field.value?.includes(item) ? "bg-primary border-primary" : "border-muted-foreground"
+                                            )}>
+                                                {field.value?.includes(item) && <Check className="w-3 h-3 text-white" />}
+                                            </div>
+                                            <span className="text-sm font-medium">{item}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        />
                     </div>
                 )}
 

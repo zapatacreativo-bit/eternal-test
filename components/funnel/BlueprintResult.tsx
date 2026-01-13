@@ -28,15 +28,19 @@ export function BlueprintResult({ contact, answers }: BlueprintResultProps) {
         return () => clearTimeout(timer);
     }, []);
 
+    const [generating, setGenerating] = useState(false); // Add this state
+
     const handleDownload = async () => {
         if (!contentRef.current) return;
 
+        setGenerating(true);
         try {
             const canvas = await html2canvas(contentRef.current, {
                 scale: 2, // Better resolution
                 backgroundColor: "#000000", // Force dark background for PDF
-                useCORS: true
-            });
+                useCORS: true,
+                logging: false
+            } as any);
             const imgData = canvas.toDataURL("image/png");
 
             const pdf = new jsPDF({
@@ -52,6 +56,9 @@ export function BlueprintResult({ contact, answers }: BlueprintResultProps) {
             pdf.save(`Blueprint-IA-${contact.name.replace(/\s+/g, "-")}.pdf`);
         } catch (err) {
             console.error("PDF Generation failed", err);
+            alert("Hubo un error generando el PDF. Por favor intenta de nuevo.");
+        } finally {
+            setGenerating(false);
         }
     };
 
@@ -128,9 +135,23 @@ export function BlueprintResult({ contact, answers }: BlueprintResultProps) {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-                <Button size="lg" onClick={handleDownload} className="bg-primary hover:bg-primary/90 w-full sm:w-auto">
-                    <Download className="mr-2 w-4 h-4" />
-                    Descargar PDF Completo
+                <Button
+                    size="lg"
+                    onClick={handleDownload}
+                    disabled={generating}
+                    className="bg-primary hover:bg-primary/90 w-full sm:w-auto"
+                >
+                    {generating ? (
+                        <>
+                            <Zap className="mr-2 w-4 h-4 animate-spin" />
+                            Generando...
+                        </>
+                    ) : (
+                        <>
+                            <Download className="mr-2 w-4 h-4" />
+                            Descargar PDF Completo
+                        </>
+                    )}
                 </Button>
                 <Button size="lg" variant="outline" className="border-white/20 w-full sm:w-auto">
                     <Share2 className="mr-2 w-4 h-4 " />

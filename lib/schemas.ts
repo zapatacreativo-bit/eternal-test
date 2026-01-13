@@ -11,6 +11,7 @@ export const questionnaireSchema = z.object({
     painPoints: z.array(z.string()).min(1, "Selecciona al menos un punto de dolor"),
     goal: z.string().min(1, "Selecciona un objetivo principal"),
     budget: z.string().optional(),
+    profileChecks: z.array(z.string()).optional(),
 });
 
 export type ContactFormData = z.infer<typeof contactSchema>;

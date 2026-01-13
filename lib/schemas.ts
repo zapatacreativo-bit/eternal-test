@@ -3,6 +3,9 @@ import { z } from "zod";
 export const contactSchema = z.object({
     name: z.string().min(2, "El nombre es requerido"),
     email: z.string().email("Email inválido"),
+    termsAccepted: z.boolean().refine(val => val === true, {
+        message: "Debes aceptar las condiciones",
+    }),
 });
 
 export const questionnaireSchema = z.object({

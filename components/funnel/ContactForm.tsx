@@ -8,13 +8,20 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ArrowRight } from "lucide-react";
 
+import { Checkbox } from "@/components/ui/checkbox";
+
 interface ContactFormProps {
     onSubmit: (data: ContactFormData) => void;
 }
 
 export function ContactForm({ onSubmit }: ContactFormProps) {
-    const { register, handleSubmit, formState: { errors } } = useForm<ContactFormData>({
+    const { register, handleSubmit, setValue, formState: { errors } } = useForm<ContactFormData>({
         resolver: zodResolver(contactSchema),
+        defaultValues: {
+            name: "",
+            email: "",
+            termsAccepted: false // Initialize
+        }
     });
 
     return (
@@ -41,6 +48,19 @@ export function ContactForm({ onSubmit }: ContactFormProps) {
                 />
                 {errors.email && <p className="text-red-400 text-sm">{errors.email.message}</p>}
             </div>
+
+            <div className="flex items-start space-x-2 pt-2">
+                <Checkbox
+                    id="terms"
+                    onCheckedChange={(checked) => {
+                        setValue("termsAccepted", checked === true ? true : false, { shouldValidate: true });
+                    }}
+                />
+                <Label htmlFor="terms" className="text-sm text-muted-foreground leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                    Acepto las <a href="/condiciones-de-uso" target="_blank" className="underline hover:text-primary">Condiciones de Uso</a> y la <a href="/politica-de-privacidad" target="_blank" className="underline hover:text-primary">Política de Privacidad</a>.
+                </Label>
+            </div>
+            {errors.termsAccepted && <p className="text-red-400 text-sm">{errors.termsAccepted.message}</p>}
 
             <Button type="submit" size="lg" className="w-full text-lg h-12 bg-primary hover:bg-primary/90">
                 Comenzar Diagnóstico

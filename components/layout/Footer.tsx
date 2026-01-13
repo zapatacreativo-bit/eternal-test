@@ -52,7 +52,7 @@ export function Footer() {
 
             <div className="max-w-7xl mx-auto mt-12 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center bg-transparent gap-4">
                 <p className="text-muted-foreground">© 2024 AETHER Intelligence. Todos los derechos reservados.</p>
-                <p className="text-xs text-muted-foreground/50">Designed in the Future.</p>
+                <p className="text-xs text-muted-foreground/50">Designed in the Future by David Zapata</p>
             </div>
         </footer>
     );

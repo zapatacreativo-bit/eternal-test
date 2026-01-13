@@ -320,7 +320,7 @@ export function WorkflowSimulation() {
     };
 
     return (
-        <section className="py-24 px-4 bg-[#05050a] text-white overflow-hidden relative">
+        <section className="py-12 md:py-16 px-4 bg-[#05050a] text-white overflow-hidden relative">
             <style jsx>{`
                 .tier-label.cyan { color: ${CONFIG.colors.cyan}; border: 1px solid rgba(0,212,255,0.2); background: rgba(0,212,255,0.05); }
                 .tier-label.magenta { color: ${CONFIG.colors.magenta}; border: 1px solid rgba(255,0,170,0.2); background: rgba(255,0,170,0.05); }
@@ -352,9 +352,57 @@ export function WorkflowSimulation() {
                     <h2 className="text-4xl md:text-5xl font-bold mb-4">
                         <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#00d4ff] via-[#ff00aa] to-[#8b5cf6]">Workflow Automation</span> en Acción
                     </h2>
-                    <p className="text-white/60 max-w-xl mx-auto text-lg">
+                    <p className="text-white/60 max-w-xl mx-auto text-lg mb-8">
                         Triggers, Webhooks, Data Mapping y conexiones inteligentes trabajando en tiempo real.
                     </p>
+
+                    {/* Controls (Moved Up) */}
+                    <div className="flex justify-center gap-4 flex-wrap relative z-20">
+                        <button
+                            onClick={run}
+                            disabled={isRunning}
+                            className="px-8 py-4 rounded-xl bg-gradient-to-r from-[#00d4ff] via-[#ff00aa] to-[#8b5cf6] text-white font-bold text-lg shadow-[0_0_30px_rgba(0,212,255,0.4)] hover:shadow-[0_0_50px_rgba(255,0,170,0.6)] hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:hover:scale-100 disabled:hover:shadow-none animate-pulse hover:animate-none"
+                        >
+                            {isRunning ? "EJECUTANDO..." : "▶ INICIAR SIMULACIÓN"}
+                        </button>
+                        <button
+                            onClick={reset}
+                            className="px-6 py-4 rounded-xl bg-white/5 border border-white/10 text-white/60 font-medium hover:bg-white/10 hover:text-white transition-all backdrop-blur-md"
+                        >
+                            ↺ REINICIAR
+                        </button>
+                    </div>
+
+                    {/* Execution Dashboard (Moved Here) */}
+                    <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-4 max-w-4xl mx-auto">
+
+                        {/* Stats Grid */}
+                        <div className="grid grid-cols-2 gap-4">
+                            <StatCard label="Ejecuciones" value={stats.exec} />
+                            <StatCard label="Tiempo" value={stats.time} />
+                            <StatCard label="Nodos" value={stats.nodes} />
+                            <StatCard label="Éxito" value={stats.success} />
+                        </div>
+
+                        {/* Log Panel */}
+                        <div className="bg-[#08080f]/95 border border-white/5 rounded-xl p-4 flex flex-col h-full min-h-[140px]">
+                            <div className="flex justify-between items-center mb-2 border-b border-white/5 pb-2">
+                                <h4 className="font-bold text-white text-xs flex items-center gap-2">📊 Execution Log</h4>
+                                <span className={cn(
+                                    "text-[9px] uppercase font-bold px-2 py-0.5 rounded-full border",
+                                    execStatus === "Standby" ? "border-white/10 text-white/40" :
+                                        execStatus === "Running..." ? "border-[#00d4ff]/20 bg-[#00d4ff]/5 text-[#00d4ff]" :
+                                            "border-[#00ff88]/20 bg-[#00ff88]/5 text-[#00ff88]"
+                                )}>
+                                    {execStatus}
+                                </span>
+                            </div>
+                            <div ref={logContainerRef} className="flex-1 overflow-y-auto font-mono text-[10px] space-y-1 pr-2 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+                                <div className="text-white/35">[--:--:--] Sistema inicializado.</div>
+                            </div>
+                        </div>
+
+                    </div>
                 </div>
 
                 {/* Canvas */}
@@ -412,50 +460,39 @@ export function WorkflowSimulation() {
                         />
                     ))}
 
-                    {/* Data Panel */}
-                    <div className="mt-8 bg-[#08080f]/95 border border-white/5 rounded-xl p-6">
-                        <div className="flex justify-between items-center mb-4 border-b border-white/5 pb-4">
-                            <h4 className="font-bold text-white text-sm flex items-center gap-2">📊 Execution Log</h4>
-                            <span className={cn(
-                                "text-[10px] uppercase font-bold px-3 py-1 rounded-full border",
-                                execStatus === "Standby" ? "border-white/10 text-white/40" :
-                                    execStatus === "Running..." ? "border-[#00d4ff]/20 bg-[#00d4ff]/5 text-[#00d4ff]" :
-                                        "border-[#00ff88]/20 bg-[#00ff88]/5 text-[#00ff88]"
-                            )}>
-                                {execStatus}
-                            </span>
+
+
+                </div>
+
+                {/* Aggressive CTA Banner */}
+                <div className="relative mt-16 group">
+                    <div className="absolute inset-0 bg-gradient-to-r from-[#00d4ff] via-[#ff00aa] to-[#8b5cf6] rounded-3xl opacity-20 blur-xl group-hover:opacity-30 transition-opacity" />
+                    <div className="relative bg-[#0a0a12] border border-white/10 rounded-3xl p-8 md:p-12 text-center overflow-hidden">
+
+                        {/* Background Beams */}
+                        <div className="absolute top-0 left-0 w-full h-full bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.02)_50%,transparent_75%,transparent_100%)] bg-[length:250%_250%] animate-[shimmer_3s_infinite]" />
+
+                        <h3 className="text-3xl md:text-5xl font-extrabold text-white mb-6 tracking-tight">
+                            ¿SIGUES PERDIENDO <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#ff00aa] to-[#ff4d4d]">TIEMPO Y DINERO</span>?
+                        </h3>
+                        <p className="text-lg md:text-xl text-white/70 max-w-2xl mx-auto mb-8 font-light">
+                            La automatización no es el futuro, es el estándar de supervivencia. <br className="hidden md:block" />
+                            Tu competencia ya está operando 24/7 con Agentes IA. <strong className="text-white">¿Te vas a quedar atrás?</strong>
+                        </p>
+
+                        <div className="flex justify-center">
+                            <a href="#contacto" className="relative inline-flex group/btn">
+                                <div className="absolute transition-all duration-1000 opacity-70 -inset-px bg-gradient-to-r from-[#44BCFF] via-[#FF44EC] to-[#FF675E] rounded-xl blur-lg group-hover/btn:opacity-100 group-hover/btn:-inset-1 group-hover/btn:duration-200 animate-tilt"></div>
+                                <button className="relative inline-flex items-center justify-center px-8 py-4 text-lg font-bold text-white transition-all duration-200 bg-black font-pj rounded-xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900">
+                                    RESERVAR AUDITORÍA ESTRATÉGICA
+                                </button>
+                            </a>
                         </div>
-                        <div ref={logContainerRef} className="h-32 overflow-y-auto font-mono text-[11px] space-y-2 pr-2 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
-                            <div className="text-white/35">[--:--:--] Sistema inicializado.</div>
-                        </div>
+
                     </div>
-
                 </div>
 
-                {/* Controls */}
-                <div className="flex justify-center gap-4 mt-8 flex-wrap">
-                    <button
-                        onClick={run}
-                        disabled={isRunning}
-                        className="px-8 py-3 rounded-xl bg-gradient-to-r from-[#00d4ff] via-[#ff00aa] to-[#8b5cf6] text-white font-bold shadow-[0_4px_20px_rgba(0,212,255,0.25)] hover:shadow-[0_8px_30px_rgba(0,212,255,0.35)] hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:hover:translate-y-0"
-                    >
-                        ▶️ Ejecutar Workflow
-                    </button>
-                    <button
-                        onClick={reset}
-                        className="px-8 py-3 rounded-xl bg-white/5 border border-white/5 text-white/60 font-bold hover:bg-white/10 hover:text-white transition-all"
-                    >
-                        ↺ Reset
-                    </button>
-                </div>
 
-                {/* Stats */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
-                    <StatCard label="Ejecuciones" value={stats.exec} />
-                    <StatCard label="Tiempo" value={stats.time} />
-                    <StatCard label="Nodos" value={stats.nodes} />
-                    <StatCard label="Éxito" value={stats.success} />
-                </div>
             </div>
         </section>
     );

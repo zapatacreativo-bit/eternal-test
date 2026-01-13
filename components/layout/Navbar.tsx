@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { ShimmerButton } from "@/components/ui/shimmer-button";
 import { motion } from "framer-motion";
 
 export function Navbar() {
@@ -22,9 +23,17 @@ export function Navbar() {
                 <Link href="/#casos" className="hover:text-primary transition-colors">Casos de Éxito</Link>
             </nav>
 
-            <Button variant="outline" className="border-primary/50 text-primary hover:bg-primary/10 hover:text-white glass-card">
-                Agendar Demo
-            </Button>
+            <Link href="tel:+34646544645">
+                <ShimmerButton className="shadow-2xl hover:shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:scale-105 transition-all">
+                    <span className="flex items-center gap-2">
+                        <span className="relative flex h-2 w-2">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                        </span>
+                        CONTACTO
+                    </span>
+                </ShimmerButton>
+            </Link>
         </motion.header>
     );
 }

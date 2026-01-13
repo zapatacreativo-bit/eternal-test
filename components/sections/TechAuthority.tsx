@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Check } from "lucide-react";
+import { AetherProtocolAnimation } from "@/components/sections/AetherProtocolAnimation";
 
 export function TechAuthority() {
     return (
@@ -57,21 +58,13 @@ export function TechAuthority() {
                 </div>
 
                 {/* Methodology */}
+                {/* Methodology */}
                 <div className="space-y-8">
-                    <h3 className="text-2xl font-bold">Metodología: El Protocolo AETHER</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        {[
-                            { step: "01", title: "Disección", text: "Mapeamos atómicamente cada proceso de tu empresa. Identificamos ineficiencias invisibles al ojo humano." },
-                            { step: "02", title: "Arquitectura", text: "Diseñamos la red neuronal de agentes. Definimos roles, permisos y protocolos de comunicación." },
-                            { step: "03", title: "Simbiosis", text: "Despliegue gradual. Los agentes trabajan junto a tu equipo humano, aprendiendo y refinándose antes de tomar autonomía total." }
-                        ].map((item) => (
-                            <div key={item.step} className="p-6 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition">
-                                <div className="text-4xl font-bold text-white/10 mb-4">{item.step}</div>
-                                <h4 className="text-xl font-bold mb-2 text-white">{item.title}</h4>
-                                <p className="text-muted-foreground text-sm">{item.text}</p>
-                            </div>
-                        ))}
-                    </div>
+                    <h3 className="text-3xl font-bold text-center">Metodología: El Protocolo AETHER</h3>
+                    <p className="text-center text-muted-foreground max-w-2xl mx-auto">
+                        Nuestro proceso propietario de tres fases para transformar organizaciones caóticas en entidades autónomas.
+                    </p>
+                    <AetherProtocolAnimation />
                 </div>
 
                 {/* FAQ for Density */}

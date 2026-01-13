@@ -35,7 +35,7 @@ export function Footer() {
                     <h4 className="font-bold text-white mb-4">Empresa</h4>
                     <ul className="space-y-2 text-muted-foreground">
                         <li><Link href="/about" className="hover:text-primary">Sobre Nosotros</Link></li>
-                        <li><Link href="/#blueprint-funnel" className="hover:text-primary">Contacto</Link></li>
+                        <li><Link href="tel:+34646544645" className="hover:text-primary">Contacto</Link></li>
                         <li><Link href="/admin" className="hover:text-primary">Portal Cliente</Link></li>
                     </ul>
                 </div>

@@ -35,11 +35,24 @@ export function BlueprintResult({ contact, answers }: BlueprintResultProps) {
 
         setGenerating(true);
         try {
+            // Force specific width for PDF generation to ensure Grid layout (3 cols) instead of Mobile (1 col)
             const canvas = await html2canvas(contentRef.current, {
-                scale: 1, // Reduced to avoid memory crashes
-                backgroundColor: "#000000",
-                logging: true // Enabled for debugging
+                scale: 2, // High resolution
+                useCORS: true,
+                backgroundColor: "#0a0a0f", // Match card background
+                windowWidth: 1200, // Force Desktop Media Queries
+                width: 1200, // Force Canvas Width
+                onclone: (clonedDoc: Document) => {
+                    // Ensure the cloned element has fixed width to prevent squashing
+                    const element = clonedDoc.querySelector('[data-print-target="true"]') as HTMLElement;
+                    if (element) {
+                        element.style.width = "1100px";
+                        element.style.margin = "0 auto";
+                        element.style.padding = "40px";
+                    }
+                }
             } as any);
+
             const imgData = canvas.toDataURL("image/png");
 
             // ... (rest of PDF logic is fine)
@@ -88,7 +101,7 @@ export function BlueprintResult({ contact, answers }: BlueprintResultProps) {
     return (
         <div className="space-y-8 animate-in fade-in zoom-in duration-500">
             {/* Printable Content Container */}
-            <div ref={contentRef} className="space-y-8 p-4 rounded-xl bg-[#0a0a0f]">
+            <div ref={contentRef} data-print-target="true" className="space-y-8 p-4 rounded-xl bg-[#0a0a0f]">
                 <div className="text-center space-y-2">
                     <div className="inline-block p-2 rounded-full bg-[#162a1c] text-[#4ade80] mb-2 border border-[#22c55e33]">
                         <CheckCircle className="w-5 h-5 inline mr-2" />

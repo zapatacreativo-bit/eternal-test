@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { AgentWorkflowAnimation } from "@/components/sections/AgentWorkflowAnimation";
-import { BrainCircuit, Cpu, Network, ShieldCheck, Zap, BarChart3, Bot, Code2 } from "lucide-react";
+import { BrainCircuit, Cpu, Network, ShieldCheck, Zap, BarChart3, Bot, Code2, Database, CheckCircle } from "lucide-react";
 
 export const metadata: Metadata = {
     title: "Agentes Autónomos de Inteligencia Artificial | Automatización Soberana 2026",
@@ -230,5 +230,3 @@ export default function AgentesAutonomosPage() {
     );
 }
 
-// Importing icons for the definition section to avoid "ReferenceError"
-import { CheckCircle } from "lucide-react";

@@ -56,8 +56,8 @@ export function ContactForm({ onSubmit }: ContactFormProps) {
                         setValue("termsAccepted", checked === true ? true : false, { shouldValidate: true });
                     }}
                 />
-                <Label htmlFor="terms" className="text-sm text-muted-foreground leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                    Acepto las <a href="/condiciones-de-uso" target="_blank" className="underline hover:text-primary">Condiciones de Uso</a> y la <a href="/politica-de-privacidad" target="_blank" className="underline hover:text-primary">Política de Privacidad</a>.
+                <Label htmlFor="terms" className="text-[10px] md:text-sm text-muted-foreground leading-tight md:leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                    Acepto las <a href="/condiciones" target="_blank" className="underline hover:text-primary">Condiciones</a> y la <a href="/privacidad" target="_blank" className="underline hover:text-primary">Política de Privacidad</a>.
                 </Label>
             </div>
             {errors.termsAccepted && <p className="text-red-400 text-sm">{errors.termsAccepted.message}</p>}

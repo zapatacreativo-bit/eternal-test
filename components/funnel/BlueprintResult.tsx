@@ -160,7 +160,59 @@ export function BlueprintResult({ contact, answers }: BlueprintResultProps) {
                 {/* Footer for PDF only (Visual trickery could be added here) */}
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
+            {/* Strategy Tiers */}
+            <div className="pt-6">
+                <h4 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                    <TrendingUp className="w-5 h-5 text-cyan-400" />
+                    Niveles de Implementación Estratégica
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {/* Tier 1: Pilot */}
+                    <div className="p-4 rounded-xl bg-black/40 border border-white/10 opacity-70 hover:opacity-100 transition-opacity">
+                        <div className="text-sm font-mono text-gray-500 mb-1">FASE 1</div>
+                        <h5 className="text-lg font-bold text-white mb-2">Pilot (MVP)</h5>
+                        <div className="text-2xl font-bold text-white mb-4">€2.5k <span className="text-xs font-normal text-gray-500">/ setup</span></div>
+                        <ul className="space-y-2 text-sm text-gray-400">
+                            <li className="flex gap-2"><CheckCircle className="w-4 h-4 text-gray-600" /> 1 Agente Autónomo</li>
+                            <li className="flex gap-2"><CheckCircle className="w-4 h-4 text-gray-600" /> Webhook Básico</li>
+                            <li className="flex gap-2"><CheckCircle className="w-4 h-4 text-gray-600" /> Soporte Email</li>
+                        </ul>
+                    </div>
+
+                    {/* Tier 2: Growth (Recommended) */}
+                    <div className="relative p-6 rounded-xl bg-[#1c1c21] border border-cyan-500/50 shadow-[0_0_30px_rgba(0,212,255,0.1)] transform md:-translate-y-2">
+                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-cyan-500 text-black text-xs font-bold rounded-full">
+                            RECOMENDADO
+                        </div>
+                        <div className="text-sm font-mono text-cyan-400 mb-1">FASE 2</div>
+                        <h5 className="text-xl font-bold text-white mb-2">Growth Engine</h5>
+                        <div className="text-3xl font-bold text-white mb-4">€5.8k <span className="text-xs font-normal text-gray-500">/ setup</span></div>
+                        <ul className="space-y-3 text-sm text-gray-300">
+                            <li className="flex gap-2"><Zap className="w-4 h-4 text-cyan-400" /> 3 Agentes Orquestados</li>
+                            <li className="flex gap-2"><Zap className="w-4 h-4 text-cyan-400" /> Integración CRM + ERP</li>
+                            <li className="flex gap-2"><Zap className="w-4 h-4 text-cyan-400" /> Dashboard Analytics</li>
+                            <li className="flex gap-2"><Zap className="w-4 h-4 text-cyan-400" /> Soporte Slack Híbrido</li>
+                        </ul>
+                        <div className="mt-6 w-full py-2 rounded-lg bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-center text-sm font-bold">
+                            Mejor ROI (4.5x)
+                        </div>
+                    </div>
+
+                    {/* Tier 3: Sovereign */}
+                    <div className="p-4 rounded-xl bg-black/40 border border-white/10 opacity-70 hover:opacity-100 transition-opacity">
+                        <div className="text-sm font-mono text-purple-400 mb-1">FASE 3</div>
+                        <h5 className="text-lg font-bold text-white mb-2">Sovereign</h5>
+                        <div className="text-2xl font-bold text-white mb-4">Custom <span className="text-xs font-normal text-gray-500">/ quote</span></div>
+                        <ul className="space-y-2 text-sm text-gray-400">
+                            <li className="flex gap-2"><CheckCircle className="w-4 h-4 text-purple-900" /> Infraestructura Propia</li>
+                            <li className="flex gap-2"><CheckCircle className="w-4 h-4 text-purple-900" /> Modelos Fine-Tuned</li>
+                            <li className="flex gap-2"><CheckCircle className="w-4 h-4 text-purple-900" /> SLA Empresarial</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-4 justify-center pt-8 border-t border-white/10">
                 <Button
                     size="lg"
                     onClick={handleDownload}

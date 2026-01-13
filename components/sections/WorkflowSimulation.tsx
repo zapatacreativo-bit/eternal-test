@@ -1,366 +1,475 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import React, { useEffect, useState, useRef } from "react";
 import { cn } from "@/lib/utils";
-import { Zap, Link as LinkIcon, FileJson, Mail, CheckCircle, Play, RotateCcw, Activity } from "lucide-react";
 
-// Types
-interface LogEntry {
-    id: string;
-    timestamp: string;
-    message: string;
-    type: "info" | "action" | "success" | "data";
-}
+// --- Configuration Constants from User Script ---
+const CONFIG = {
+    colors: {
+        cyan: '#00d4ff',
+        magenta: '#ff00aa',
+        purple: '#8b5cf6',
+        green: '#00ff88',
+        yellow: '#ffd000',
+    },
+    animation: {
+        particleDuration: 600,
+        easing: (t: number) => 1 - Math.pow(1 - t, 3)
+    }
+};
 
-interface NodeState {
-    id: string;
-    status: "idle" | "running" | "success";
-}
+const TIERS = [
+    {
+        id: 'trigger',
+        label: 'Trigger',
+        color: 'cyan',
+        nodes: [
+            { id: 'trigger', icon: '⚡', title: 'CRM Trigger', subtitle: 'on:new_lead', type: 'trigger' },
+            { id: 'webhook', icon: '🔗', title: 'Webhook', subtitle: 'POST /api', type: 'webhook' }
+        ]
+    },
+    {
+        id: 'process',
+        label: 'Process',
+        color: 'magenta',
+        nodes: [
+            { id: 'filter', icon: '🔍', title: 'Filter', subtitle: 'score > 70', type: 'filter' },
+            { id: 'transform', icon: '🔄', title: 'Transform', subtitle: 'map:fields', type: 'transform' }
+        ]
+    },
+    {
+        id: 'integrate',
+        label: 'Integrate',
+        color: 'yellow',
+        nodes: [
+            { id: 'mailchimp', icon: '📧', title: 'Mailchimp', subtitle: 'add:subscriber', type: 'mailchimp' },
+            { id: 'slack', icon: '💬', title: 'Slack', subtitle: 'notify:sales', type: 'slack' },
+            { id: 'database', icon: '🗄️', title: 'Database', subtitle: 'insert:lead', type: 'database' }
+        ]
+    },
+    {
+        id: 'output',
+        label: 'Output',
+        color: 'green',
+        nodes: [
+            { id: 'output', icon: '✅', title: 'Response', subtitle: 'status:200', type: 'output' }
+        ]
+    }
+];
 
-// Visual Nodes Configuration
-const nodesConfig = [
-    { id: "trigger", label: "Trigger", sub: "Nuevo Lead CRM", icon: Zap, x: 4, y: 32, color: "cyan" },
-    { id: "webhook", label: "Webhook", sub: "POST /api/lead", icon: LinkIcon, x: 26, y: 15, color: "magenta" },
-    { id: "mapping", label: "Data Mapping", sub: "Transform JSON", icon: FileJson, x: 26, y: 52, color: "purple" },
-    { id: "mailchimp", label: "Mailchimp", sub: "Add Subscriber", icon: Mail, x: 50, y: 32, color: "yellow" },
-    { id: "output", label: "Output", sub: "Response 200", icon: CheckCircle, x: 76, y: 32, color: "green" },
+const CONNECTIONS = [
+    { from: 'trigger', to: 'filter' },
+    { from: 'webhook', to: 'filter' },
+    { from: 'filter', to: 'transform' },
+    { from: 'transform', to: 'mailchimp' },
+    { from: 'transform', to: 'slack' },
+    { from: 'transform', to: 'database' },
+    { from: 'mailchimp', to: 'output' },
+    { from: 'slack', to: 'output' },
+    { from: 'database', to: 'output' }
 ];
 
 export function WorkflowSimulation() {
-    // State
     const [isRunning, setIsRunning] = useState(false);
-    const [execCount, setExecCount] = useState(0);
-    const [dataCount, setDataCount] = useState(0);
-    const [logs, setLogs] = useState<LogEntry[]>([{ id: "init", timestamp: "--:--:--", message: "Sistema listo. Pulsa Ejecutar.", type: "info" }]);
-    const [nodeStatuses, setNodeStatuses] = useState<Record<string, "idle" | "running" | "success">>({
-        trigger: "idle", webhook: "idle", mapping: "idle", mailchimp: "idle", output: "idle"
-    });
-    const [activePaths, setActivePaths] = useState<string[]>([]);
-    const [particles, setParticles] = useState<{ id: string, from: string, to: string, color: string }[]>([]);
-    const [hoveredNode, setHoveredNode] = useState<string | null>(null);
+    const [execStatus, setExecStatus] = useState("Standby");
+    const [stats, setStats] = useState({ exec: 0, time: "0ms", nodes: "0/8", success: "100%" });
+    const logContainerRef = useRef<HTMLDivElement>(null);
+    const canvasRef = useRef<HTMLDivElement>(null);
+
+    // Initial Drawing of Connections
+    useEffect(() => {
+        const draw = () => {
+            const svg = document.getElementById('connections-svg');
+            const canvas = document.getElementById('canvas-content');
+            if (!svg || !canvas) return;
+
+            const canvasRect = canvas.getBoundingClientRect();
+            // Clear existing paths but keep defs
+            const defs = svg.querySelector('defs');
+            svg.innerHTML = '';
+            if (defs) svg.appendChild(defs);
+
+            CONNECTIONS.forEach((conn, index) => {
+                const startEl = document.getElementById(`node-${conn.from}`);
+                const endEl = document.getElementById(`node-${conn.to}`);
+
+                if (!startEl || !endEl) return;
+
+                const startRect = startEl.getBoundingClientRect();
+                const endRect = endEl.getBoundingClientRect();
+
+                // Calculate relative positions
+                const start = {
+                    x: startRect.left - canvasRect.left + startRect.width / 2,
+                    y: startRect.top - canvasRect.top + startRect.height / 2
+                };
+                const end = {
+                    x: endRect.left - canvasRect.left + endRect.width / 2,
+                    y: endRect.top - canvasRect.top + endRect.height / 2
+                };
+
+                const dx = end.x - start.x;
+                const cp1x = start.x + dx * 0.4;
+                const cp2x = start.x + dx * 0.6;
+
+                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                path.setAttribute('class', 'connection-line');
+                path.setAttribute('id', `connection-${index}`);
+                path.setAttribute('d', `M ${start.x} ${start.y} C ${cp1x} ${start.y}, ${cp2x} ${end.y}, ${end.x} ${end.y}`);
+                path.style.fill = 'none';
+                path.style.stroke = 'rgba(255, 255, 255, 0.06)';
+                path.style.strokeWidth = '2';
+                path.style.transition = 'all 0.3s';
+
+                svg.appendChild(path);
+            });
+        };
+
+        // Draw initially and on resize
+        setTimeout(draw, 500); // Wait for layout
+        window.addEventListener('resize', draw);
+        return () => window.removeEventListener('resize', draw);
+    }, []);
 
     // Helper: Log
-    const addLog = (message: string, type: LogEntry["type"] = "info") => {
-        const time = new Date().toLocaleTimeString("es-ES");
-        setLogs(prev => [...prev, { id: Math.random().toString(), timestamp: time, message, type }]);
+    const log = (msg: string, type: string) => {
+        if (!logContainerRef.current) return;
+        const time = new Date().toLocaleTimeString('es-ES');
+        const color = type === 'act' ? CONFIG.colors.cyan :
+            type === 'ok' ? CONFIG.colors.green :
+                type === 'data' ? CONFIG.colors.magenta : 'rgba(255,255,255,0.5)';
+
+        const line = document.createElement('div');
+        line.innerHTML = `<span style="color:rgba(255,255,255,0.35)">[${time}]</span> <span style="color:${color}">${msg}</span>`;
+        logContainerRef.current.appendChild(line);
+        logContainerRef.current.scrollTop = logContainerRef.current.scrollHeight;
     };
 
-    // Helper: Sleep
-    const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+    // Helper: Activate Node
+    const activateNode = (id: string, status: 'active' | 'success') => {
+        const node = document.getElementById(`node-${id}`);
+        const statusEl = document.getElementById(`status-${id}`);
 
-    // Helper: Paths SVG
-    const getPathD = (fromId: string, toId: string) => {
-        // Simple coordinate mapping based on % positions (approximate for responsiveness, ideally would utilize refs)
-        // For this demo, let's assume a fixed 1000px width reference for logic simplicity or use percentages if SVG supports it well.
-        // Actually, SVG lines with percentages are tricky. Let's use specific coordinates logic or just generic straight lines if nodes are aligned.
-        // The user's code used curve logic. Let's approximate Bezier curves in SVG relative to 100x100 viewbox.
-        const fromParams = nodesConfig.find(n => n.id === fromId)!;
-        const toParams = nodesConfig.find(n => n.id === toId)!;
+        if (node) {
+            node.classList.remove('ring-[#00d4ff]', 'ring-[#00ff88]', 'ring-2');
+            node.style.boxShadow = 'none';
+            if (status === 'active') {
+                node.style.borderColor = CONFIG.colors.cyan;
+                node.style.boxShadow = `0 0 30px rgba(0, 212, 255, 0.25), inset 0 0 20px rgba(0, 212, 255, 0.05)`;
+            } else if (status === 'success') {
+                node.style.borderColor = CONFIG.colors.green;
+                node.style.boxShadow = `0 0 30px rgba(0, 255, 136, 0.2), inset 0 0 20px rgba(0, 255, 136, 0.03)`;
+                setStats(prev => ({ ...prev, nodes: `${parseInt(prev.nodes.split('/')[0]) + 1}/8` }));
+            }
+        }
 
-        // Adjust centers (approximate based on node size)
-        const startX = fromParams.x + 6; // +6 to center roughly
-        const startY = fromParams.y + 6;
-        const endX = toParams.x + 6;
-        const endY = toParams.y + 6;
-
-        const midX = (startX + endX) / 2;
-        return `M ${startX} ${startY} C ${midX} ${startY}, ${midX} ${endY}, ${endX} ${endY}`;
+        if (statusEl) {
+            statusEl.style.backgroundColor = status === 'active' ? CONFIG.colors.cyan : CONFIG.colors.green;
+            statusEl.style.boxShadow = `0 0 10px ${status === 'active' ? CONFIG.colors.cyan : CONFIG.colors.green}`;
+        }
     };
 
-    // Execution Logic
-    const executeWorkflow = async () => {
+    // Helper: Animate Particle
+    const animateParticle = (particleId: number, from: string, to: string, duration = CONFIG.animation.particleDuration) => {
+        return new Promise<void>(resolve => {
+            const particle = document.getElementById(`particle-${particleId}`);
+            const connIndex = CONNECTIONS.findIndex(c => c.from === from && c.to === to);
+            const path = document.getElementById(`connection-${connIndex}`) as unknown as SVGPathElement;
+
+            if (!particle || !path) { resolve(); return; }
+
+            // Highlight path
+            path.style.stroke = 'url(#threadGradient)';
+            path.style.strokeWidth = '2.5';
+            path.style.filter = 'drop-shadow(0 0 8px rgba(0, 212, 255, 0.6))';
+
+            const length = path.getTotalLength();
+            particle.style.opacity = '1';
+            const startTime = performance.now();
+
+            const frame = (time: number) => {
+                const elapsed = time - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const eased = CONFIG.animation.easing(progress);
+
+                const p = path.getPointAtLength(length * eased);
+                particle.style.left = `${p.x - 5}px`;
+                particle.style.top = `${p.y - 5}px`;
+
+                if (progress < 1) {
+                    requestAnimationFrame(frame);
+                } else {
+                    particle.style.opacity = '0';
+                    // Reset path
+                    path.style.stroke = 'rgba(255, 255, 255, 0.06)';
+                    path.style.strokeWidth = '2';
+                    path.style.filter = 'none';
+                    resolve();
+                }
+            };
+            requestAnimationFrame(frame);
+        });
+    };
+
+    const run = async () => {
         if (isRunning) return;
         setIsRunning(true);
-        setExecCount(p => p + 1);
-        setLogs([]);
-        setNodeStatuses({ trigger: "idle", webhook: "idle", mapping: "idle", mailchimp: "idle", output: "idle" });
-        setActivePaths([]);
+        setExecStatus("Running...");
+        setStats(p => ({ ...p, nodes: "0/8", success: "100%", exec: p.exec + 1 }));
+        if (logContainerRef.current) logContainerRef.current.innerHTML = '';
 
-        addLog("🚀 Iniciando workflow...", "action");
+        // Reset Nodes Visuals
+        TIERS.forEach(t => t.nodes.forEach(n => {
+            const el = document.getElementById(`node-${n.id}`);
+            const st = document.getElementById(`status-${n.id}`);
+            if (el) { el.style.borderColor = 'rgba(255,255,255,0.06)'; el.style.boxShadow = 'none'; }
+            if (st) { st.style.backgroundColor = 'rgba(255,255,255,0.1)'; st.style.boxShadow = 'none'; }
+        }));
 
-        // Step 1: Trigger
+        const t0 = performance.now();
+        log('🚀 Iniciando workflow...', 'act');
+
+        const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
+
+        // TIER 1
+        await sleep(300);
+        log('⚡ Trigger: Nuevo lead detectado', 'act');
+        activateNode('trigger', 'active');
         await sleep(400);
-        setNodeStatuses(prev => ({ ...prev, trigger: "running" }));
-        addLog("⚡ Trigger activado: Nuevo lead", "action");
-        await sleep(700);
-        setNodeStatuses(prev => ({ ...prev, trigger: "success" }));
+        activateNode('trigger', 'success');
 
-        // Step 2: Paths to Webhook
-        addLog("🔗 Webhook recibiendo payload...", "action");
-        setActivePaths(prev => [...prev, "trigger-webhook"]);
-        setParticles(prev => [...prev, { id: "p1", from: "trigger", to: "webhook", color: "cyan" }]);
-        await sleep(600);
-        setParticles(prev => prev.filter(p => p.id !== "p1"));
-        setNodeStatuses(prev => ({ ...prev, webhook: "running" }));
-        addLog("✓ POST /api/lead (200 OK)", "success");
-        await sleep(500);
-        setNodeStatuses(prev => ({ ...prev, webhook: "success" }));
-
-        // Step 3: Trigger to Mapping
-        addLog("🔄 Transformando datos...", "action");
-        setActivePaths(prev => [...prev, "trigger-mapping"]);
-        setParticles(prev => [...prev, { id: "p2", from: "trigger", to: "mapping", color: "purple" }]);
-        await sleep(600);
-        setParticles(prev => prev.filter(p => p.id !== "p2"));
-        setNodeStatuses(prev => ({ ...prev, mapping: "running" }));
-        addLog("{ email: EMAIL, score: 92 }", "data");
-        await sleep(600);
-        setNodeStatuses(prev => ({ ...prev, mapping: "success" }));
-
-        // Step 4: Merge to Mailchimp
-        addLog("📧 Conectando Mailchimp API...", "action");
-        setActivePaths(prev => [...prev, "webhook-mailchimp", "mapping-mailchimp"]);
-        setParticles(prev => [
-            ...prev,
-            { id: "p3", from: "webhook", to: "mailchimp", color: "cyan" },
-            { id: "p4", from: "mapping", to: "mailchimp", color: "purple" }
-        ]);
-        await sleep(500);
-        setParticles(prev => prev.filter(p => p.id !== "p3" && p.id !== "p4"));
-        setNodeStatuses(prev => ({ ...prev, mailchimp: "running" }));
-        await sleep(700);
-        addLog("✓ Suscriptor añadido", "success");
-        setNodeStatuses(prev => ({ ...prev, mailchimp: "success" }));
-        setDataCount(p => p + 1);
-
-        // Step 5: Output
-        addLog("📤 Finalizando...", "action");
-        setActivePaths(prev => [...prev, "mailchimp-output"]);
-        setParticles(prev => [...prev, { id: "p5", from: "mailchimp", to: "output", color: "green" }]);
-        await sleep(400);
-        setParticles(prev => prev.filter(p => p.id !== "p5"));
-        setNodeStatuses(prev => ({ ...prev, output: "running" }));
+        log('🔗 Webhook: Recibiendo payload...', 'act');
+        activateNode('webhook', 'active');
         await sleep(350);
-        setNodeStatuses(prev => ({ ...prev, output: "success" }));
-        addLog("✓ Workflow completado", "success");
+        log('✓ POST /api/lead → 200 OK', 'ok');
+        activateNode('webhook', 'success');
 
+        await Promise.all([
+            animateParticle(1, 'trigger', 'filter'),
+            animateParticle(2, 'webhook', 'filter')
+        ]);
+
+        // TIER 2
+        log('🔍 Filter: Evaluando score...', 'act');
+        activateNode('filter', 'active');
+        await sleep(400);
+        log('✓ Lead score: 85 > 70 → PASS', 'ok');
+        activateNode('filter', 'success');
+
+        await animateParticle(1, 'filter', 'transform');
+
+        log('🔄 Transform: Mapeando campos...', 'act');
+        activateNode('transform', 'active');
+        await sleep(450);
+        log('{email→EMAIL, name→FNAME, ...}', 'data');
+        activateNode('transform', 'success');
+
+        // TIER 3
+        log('📧 Mailchimp: Añadiendo suscriptor...', 'act');
+        log('💬 Slack: Notificando a #sales...', 'act');
+        log('🗄️ Database: Insertando lead...', 'act');
+        activateNode('mailchimp', 'active');
+        activateNode('slack', 'active');
+        activateNode('database', 'active');
+
+        await Promise.all([
+            animateParticle(1, 'transform', 'mailchimp'),
+            animateParticle(2, 'transform', 'slack'),
+            animateParticle(3, 'transform', 'database')
+        ]);
+
+        await sleep(500);
+        log('✓ Mailchimp: Suscriptor añadido', 'ok');
+        activateNode('mailchimp', 'success');
+        await sleep(200);
+        log('✓ Slack: Mensaje enviado', 'ok');
+        activateNode('slack', 'success');
+        await sleep(200);
+        log('✓ Database: Lead insertado (ID: 8847)', 'ok');
+        activateNode('database', 'success');
+
+        // Output
+        await Promise.all([
+            animateParticle(1, 'mailchimp', 'output'),
+            animateParticle(2, 'slack', 'output'),
+            animateParticle(4, 'database', 'output')
+        ]);
+
+        log('📤 Output: Generando respuesta...', 'act');
+        activateNode('output', 'active');
+        await sleep(300);
+        activateNode('output', 'success');
+        log('✅ Workflow completado con éxito', 'ok');
+
+        setExecStatus("✓ Complete");
+        setStats(p => ({ ...p, time: `${Math.round(performance.now() - t0)}ms` }));
         setIsRunning(false);
     };
 
-    const resetWorkflow = () => {
+    const reset = () => {
         setIsRunning(false);
-        setActivePaths([]);
-        setNodeStatuses({ trigger: "idle", webhook: "idle", mapping: "idle", mailchimp: "idle", output: "idle" });
-        setParticles([]);
-        addLog("Sistema reiniciado.", "info");
+        setExecStatus("Standby");
+        setStats(p => ({ ...p, nodes: "0/8" }));
+        if (logContainerRef.current) logContainerRef.current.innerHTML = '<div style="color:rgba(255,255,255,0.35)">[--:--:--] Sistema reiniciado.</div>';
+        TIERS.forEach(t => t.nodes.forEach(n => {
+            const el = document.getElementById(`node-${n.id}`);
+            const st = document.getElementById(`status-${n.id}`);
+            if (el) { el.style.borderColor = 'rgba(255,255,255,0.06)'; el.style.boxShadow = 'none'; }
+            if (st) { st.style.backgroundColor = 'rgba(255,255,255,0.1)'; st.style.boxShadow = 'none'; }
+        }));
     };
 
     return (
-        <section className="py-24 px-6 bg-[#0a0a0f] text-white overflow-hidden relative font-sans">
-            {/* Background Ambience */}
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-900/20 via-[#0a0a0f] to-[#0a0a0f]" />
-            <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150 mix-blend-overlay"></div>
+        <section className="py-24 px-4 bg-[#05050a] text-white overflow-hidden relative">
+            <style jsx>{`
+                .tier-label.cyan { color: ${CONFIG.colors.cyan}; border: 1px solid rgba(0,212,255,0.2); background: rgba(0,212,255,0.05); }
+                .tier-label.magenta { color: ${CONFIG.colors.magenta}; border: 1px solid rgba(255,0,170,0.2); background: rgba(255,0,170,0.05); }
+                .tier-label.yellow { color: ${CONFIG.colors.yellow}; border: 1px solid rgba(255,208,0,0.2); background: rgba(255,208,0,0.05); }
+                .tier-label.green { color: ${CONFIG.colors.green}; border: 1px solid rgba(0,255,136,0.2); background: rgba(0,255,136,0.05); }
+                
+                .node-icon.trigger { background: linear-gradient(135deg, #00d4ff, #0099cc); box-shadow: 0 4px 15px rgba(0,212,255,0.3); }
+                .node-icon.webhook { background: linear-gradient(135deg, #ff00aa, #cc0088); box-shadow: 0 4px 15px rgba(255,0,170,0.3); }
+                .node-icon.filter { background: linear-gradient(135deg, #8b5cf6, #6d28d9); box-shadow: 0 4px 15px rgba(139,92,246,0.3); }
+                .node-icon.transform { background: linear-gradient(135deg, #f59e0b, #d97706); box-shadow: 0 4px 15px rgba(245,158,11,0.3); }
+                .node-icon.mailchimp { background: linear-gradient(135deg, #ffd000, #e6bb00); box-shadow: 0 4px 15px rgba(255,208,0,0.3); }
+                .node-icon.slack { background: linear-gradient(135deg, #4a154b, #611f69); box-shadow: 0 4px 15px rgba(97,31,105,0.3); }
+                .node-icon.database { background: linear-gradient(135deg, #059669, #047857); box-shadow: 0 4px 15px rgba(5,150,105,0.3); }
+                .node-icon.output { background: linear-gradient(135deg, #00ff88, #00cc6a); box-shadow: 0 4px 15px rgba(0,255,136,0.3); }
+            `}</style>
 
-            <div className="max-w-7xl mx-auto relative z-10">
+            <div className="absolute inset-0 pointer-events-none">
+                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_15%_30%,rgba(0,212,255,0.12)_0%,transparent_50%),radial-gradient(ellipse_at_85%_70%,rgba(255,0,170,0.1)_0%,transparent_50%)]" />
+                <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.015)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.015)_1px,transparent_1px)] bg-[size:80px_80px]" />
+            </div>
 
+            <div className="max-w-7xl mx-auto relative z-10 font-sans">
                 {/* Header */}
-                <div className="text-center mb-16 space-y-4">
-                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-md">
-                        <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
-                        <span className="text-xs font-mono uppercase tracking-widest text-cyan-200">En Vivo</span>
-                    </div>
-                    <h2 className="text-4xl md:text-6xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500">
-                        Workflow IA en Acción
+                <div className="text-center mb-12">
+                    <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#00d4ff]/10 border border-[#00d4ff]/20 text-[#00d4ff] text-xs font-bold uppercase tracking-widest mb-4">
+                        <span className="w-2 h-2 rounded-full bg-[#00d4ff] animate-pulse shadow-[0_0_10px_#00d4ff]" />
+                        Live Demo
+                    </span>
+                    <h2 className="text-4xl md:text-5xl font-bold mb-4">
+                        <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#00d4ff] via-[#ff00aa] to-[#8b5cf6]">Workflow Automation</span> en Acción
                     </h2>
-                    <p className="text-gray-400 max-w-2xl mx-auto">
-                        Visualiza cómo los triggers, webhooks y mapeos transforman tu negocio con automatización inteligente.
+                    <p className="text-white/60 max-w-xl mx-auto text-lg">
+                        Triggers, Webhooks, Data Mapping y conexiones inteligentes trabajando en tiempo real.
                     </p>
                 </div>
 
-                {/* Workflow Canvas */}
-                <div className="relative w-full aspect-[16/10] md:aspect-[21/9] bg-[#0f0f19]/80 rounded-3xl border border-white/10 backdrop-blur-2xl overflow-hidden shadow-2xl">
-
-                    {/* Top Line */}
-                    <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 opacity-50" />
-
-                    {/* SVG Connections Layer */}
-                    <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 100 100" preserveAspectRatio="none">
+                {/* Canvas */}
+                <div className="bg-[rgba(12,12,20,0.9)] border border-white/5 rounded-3xl p-8 backdrop-blur-xl overflow-hidden relative" id="canvas-content">
+                    {/* SVG Layer */}
+                    <svg className="absolute inset-0 w-full h-full pointer-events-none z-0" id="connections-svg">
                         <defs>
-                            <linearGradient id="gradient-flow" x1="0%" y1="0%" x2="100%" y2="0%">
-                                <stop offset="0%" stopColor="#22d3ee" />
-                                <stop offset="50%" stopColor="#a855f7" />
-                                <stop offset="100%" stopColor="#ec4899" />
+                            <linearGradient id="threadGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" stopColor={CONFIG.colors.cyan} />
+                                <stop offset="50%" stopColor={CONFIG.colors.magenta} />
+                                <stop offset="100%" stopColor={CONFIG.colors.purple} />
                             </linearGradient>
                         </defs>
-                        {/* Draw Lines */}
-                        {[
-                            { id: "trigger-webhook", from: "trigger", to: "webhook" },
-                            { id: "trigger-mapping", from: "trigger", to: "mapping" },
-                            { id: "webhook-mailchimp", from: "webhook", to: "mailchimp" },
-                            { id: "mapping-mailchimp", from: "mapping", to: "mailchimp" },
-                            { id: "mailchimp-output", from: "mailchimp", to: "output" }
-                        ].map(path => (
-                            <path
-                                key={path.id}
-                                d={getPathD(path.from, path.to)}
-                                fill="none"
-                                stroke={activePaths.includes(path.id) ? "url(#gradient-flow)" : "rgba(255,255,255,0.1)"}
-                                strokeWidth="0.5"
-                                strokeDasharray={activePaths.includes(path.id) ? "none" : "1 1"}
-                                className={cn("transition-all duration-500", activePaths.includes(path.id) && "animate-pulse drop-shadow-[0_0_5px_rgba(34,211,238,0.5)]")}
-                            />
-                        ))}
                     </svg>
 
-                    {/* Particles Layer */}
-                    <AnimatePresence>
-                        {particles.map(particle => {
-                            const fromNode = nodesConfig.find(n => n.id === particle.from)!;
-                            const toNode = nodesConfig.find(n => n.id === particle.to)!;
-                            return (
-                                <motion.div
-                                    key={particle.id}
-                                    initial={{ x: `${fromNode.x + 6}%`, y: `${fromNode.y + 6}%`, opacity: 1, scale: 0.5 }}
-                                    animate={{ x: `${toNode.x + 6}%`, y: `${toNode.y + 6}%`, opacity: 0, scale: 1.5 }}
-                                    transition={{ duration: 0.6, ease: "easeInOut" }}
-                                    className={cn(
-                                        "absolute w-3 h-3 rounded-full blur-[2px] z-20",
-                                        particle.color === "cyan" && "bg-cyan-400 shadow-[0_0_20px_#22d3ee]",
-                                        particle.color === "purple" && "bg-purple-400 shadow-[0_0_20px_#a855f7]",
-                                        particle.color === "green" && "bg-green-400 shadow-[0_0_20px_#4ade80]"
-                                    )}
-                                />
-                            )
-                        })}
-                    </AnimatePresence>
-
-                    {/* Nodes Layer */}
-                    {nodesConfig.map(node => {
-                        const status = nodeStatuses[node.id];
-                        const isActive = status === 'running';
-                        const isSuccess = status === 'success';
-                        const isHovered = hoveredNode === node.id;
-
-                        return (
-                            <motion.div
-                                key={node.id}
-                                initial={{ opacity: 0, scale: 0.8 }}
-                                animate={{ opacity: 1, scale: isHovered ? 1.05 : 1 }}
-                                whileHover={{ y: -5 }}
-                                onHoverStart={() => setHoveredNode(node.id)}
-                                onHoverEnd={() => setHoveredNode(null)}
-                                className={cn(
-                                    "absolute p-4 rounded-xl border backdrop-blur-md transition-all duration-300 cursor-pointer z-30 min-w-[140px]",
-                                    "bg-[#141423]/90 border-white/10",
-                                    isActive && "border-cyan-400 shadow-[0_0_30px_rgba(34,211,238,0.3)]",
-                                    isSuccess && "border-green-400 shadow-[0_0_30px_rgba(74,222,128,0.3)]"
-                                )}
-                                style={{ left: `${node.x}%`, top: `${node.y}%` }}
-                            >
-                                {/* Status Dot */}
-                                <div className={cn(
-                                    "absolute top-3 right-3 w-2 h-2 rounded-full transition-all",
-                                    status === 'idle' && "bg-white/10",
-                                    status === 'running' && "bg-cyan-400 animate-ping",
-                                    status === 'success' && "bg-green-400"
-                                )} />
-
-                                {/* Icon */}
-                                <div className={cn(
-                                    "w-10 h-10 rounded-lg mb-3 flex items-center justify-center text-xl relative overflow-hidden",
-                                    node.color === 'cyan' && "bg-gradient-to-br from-cyan-400 to-cyan-600",
-                                    node.color === 'magenta' && "bg-gradient-to-br from-pink-500 to-pink-700",
-                                    node.color === 'purple' && "bg-gradient-to-br from-purple-500 to-purple-700",
-                                    node.color === 'yellow' && "bg-gradient-to-br from-yellow-400 to-yellow-600",
-                                    node.color === 'green' && "bg-gradient-to-br from-green-400 to-green-600",
-                                )}>
-                                    <node.icon className="text-white w-5 h-5" />
-                                    <div className="absolute inset-0 bg-gradient-to-b from-white/20 to-transparent" />
+                    {/* Tiers Grid (Responsive) */}
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-8 min-h-[400px] relative z-10">
+                        {TIERS.map(tier => (
+                            <div key={tier.id} className="flex flex-col items-center gap-6">
+                                <div className={`tier-label ${tier.color} text-[10px] font-bold uppercase tracking-[0.15em] px-3 py-1.5 rounded-md`}>
+                                    {tier.label}
                                 </div>
-
-                                <div className="font-bold text-sm text-white">{node.label}</div>
-                                <div className="text-[10px] font-mono text-gray-400">{node.sub}</div>
-
-                                {/* JSON Popover on Hover */}
-                                <AnimatePresence>
-                                    {isHovered && (
-                                        <motion.div
-                                            initial={{ opacity: 0, y: 10, scale: 0.9 }}
-                                            animate={{ opacity: 1, y: 0, scale: 1 }}
-                                            exit={{ opacity: 0, y: 10, scale: 0.9 }}
-                                            className="absolute left-0 -bottom-2 translate-y-full w-48 p-3 rounded-lg bg-black/90 border border-white/10 text-[10px] font-mono text-gray-300 z-50 pointer-events-none shadow-xl"
+                                <div className="flex flex-col w-full gap-4 items-center justify-center flex-1">
+                                    {tier.nodes.map(node => (
+                                        <div
+                                            key={node.id}
+                                            id={`node-${node.id}`}
+                                            className="bg-[#0f0f19]/95 border border-white/5 rounded-2xl p-5 w-48 max-w-full backdrop-blur transition-all duration-300 relative group cursor-pointer hover:-translate-y-1 hover:border-white/10"
                                         >
-                                            <div className="text-purple-400">{"{"}</div>
-                                            <div className="pl-2"><span className="text-pink-400">"id"</span>: <span className="text-green-400">"{node.id}"</span>,</div>
-                                            <div className="pl-2"><span className="text-pink-400">"status"</span>: <span className="text-cyan-400">"{status}"</span></div>
-                                            <div className="text-purple-400">{"}"}</div>
-                                        </motion.div>
-                                    )}
-                                </AnimatePresence>
-                            </motion.div>
-                        );
-                    })}
+                                            <div id={`status-${node.id}`} className="absolute top-3 right-3 w-2 h-2 rounded-full bg-white/10 transition-colors duration-300" />
+                                            <div className={`node-icon ${node.type} w-10 h-10 rounded-xl flex items-center justify-center text-xl mb-3 mx-auto`}>
+                                                {node.icon}
+                                            </div>
+                                            <div className="text-center">
+                                                <div className="text-sm font-bold text-white mb-1">{node.title}</div>
+                                                <div className="text-[10px] text-white/40 font-mono">{node.subtitle}</div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Particles */}
+                    {[1, 2, 3, 4].map(i => (
+                        <div
+                            key={i}
+                            id={`particle-${i}`}
+                            className="absolute w-2.5 h-2.5 rounded-full z-50 pointer-events-none opacity-0"
+                            style={{
+                                background: i === 1 ? CONFIG.colors.cyan : i === 2 ? CONFIG.colors.magenta : i === 3 ? CONFIG.colors.green : CONFIG.colors.yellow,
+                                boxShadow: `0 0 15px ${i === 1 ? CONFIG.colors.cyan : i === 2 ? CONFIG.colors.magenta : i === 3 ? CONFIG.colors.green : CONFIG.colors.yellow}`
+                            }}
+                        />
+                    ))}
 
                     {/* Data Panel */}
-                    <div className="absolute bottom-6 left-6 right-6 h-32 bg-[#0a0a12]/95 border border-white/10 rounded-xl backdrop-blur-xl p-4 flex flex-col z-40">
-                        <div className="flex justify-between items-center mb-2 border-b border-white/5 pb-2">
-                            <div className="flex items-center gap-2 text-sm font-semibold text-white">
-                                <Activity className="w-4 h-4 text-cyan-400" />
-                                Execution Log
-                            </div>
-                            <div className={cn(
-                                "text-xs px-2 py-1 rounded-full border",
-                                isRunning ? "bg-cyan-500/10 border-cyan-500/30 text-cyan-400" : "bg-white/5 border-white/10 text-gray-500"
+                    <div className="mt-8 bg-[#08080f]/95 border border-white/5 rounded-xl p-6">
+                        <div className="flex justify-between items-center mb-4 border-b border-white/5 pb-4">
+                            <h4 className="font-bold text-white text-sm flex items-center gap-2">📊 Execution Log</h4>
+                            <span className={cn(
+                                "text-[10px] uppercase font-bold px-3 py-1 rounded-full border",
+                                execStatus === "Standby" ? "border-white/10 text-white/40" :
+                                    execStatus === "Running..." ? "border-[#00d4ff]/20 bg-[#00d4ff]/5 text-[#00d4ff]" :
+                                        "border-[#00ff88]/20 bg-[#00ff88]/5 text-[#00ff88]"
                             )}>
-                                {isRunning ? "EJECUTANDO..." : "ESPERANDO"}
-                            </div>
+                                {execStatus}
+                            </span>
                         </div>
-                        <div className="flex-1 overflow-y-auto font-mono text-xs space-y-1 pr-2 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
-                            {logs.map((log) => (
-                                <div key={log.id} className="flex gap-2">
-                                    <span className="text-gray-600">[{log.timestamp}]</span>
-                                    <span className={cn(
-                                        log.type === 'action' && "text-cyan-400",
-                                        log.type === 'success' && "text-green-400",
-                                        log.type === 'data' && "text-pink-400",
-                                        log.type === 'info' && "text-gray-400",
-                                    )}>
-                                        {log.type === 'data' ? <span dangerouslySetInnerHTML={{ __html: log.message }} /> : log.message}
-                                    </span>
-                                </div>
-                            ))}
-                            <div id="log-end" />
+                        <div ref={logContainerRef} className="h-32 overflow-y-auto font-mono text-[11px] space-y-2 pr-2 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+                            <div className="text-white/35">[--:--:--] Sistema inicializado.</div>
                         </div>
                     </div>
 
                 </div>
 
                 {/* Controls */}
-                <div className="flex justify-center gap-4 mt-8">
+                <div className="flex justify-center gap-4 mt-8 flex-wrap">
                     <button
-                        onClick={executeWorkflow}
+                        onClick={run}
                         disabled={isRunning}
-                        className="px-8 py-4 bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 text-white font-bold rounded-xl shadow-[0_0_30px_rgba(168,85,247,0.4)] hover:shadow-[0_0_50px_rgba(168,85,247,0.6)] hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                        className="px-8 py-3 rounded-xl bg-gradient-to-r from-[#00d4ff] via-[#ff00aa] to-[#8b5cf6] text-white font-bold shadow-[0_4px_20px_rgba(0,212,255,0.25)] hover:shadow-[0_8px_30px_rgba(0,212,255,0.35)] hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:hover:translate-y-0"
                     >
-                        <Play className="w-5 h-5 fill-current" />
-                        Ejecutar Workflow
+                        ▶️ Ejecutar Workflow
                     </button>
                     <button
-                        onClick={resetWorkflow}
-                        className="px-8 py-4 bg-white/5 border border-white/10 text-white font-bold rounded-xl hover:bg-white/10 transition-all flex items-center gap-2"
+                        onClick={reset}
+                        className="px-8 py-3 rounded-xl bg-white/5 border border-white/5 text-white/60 font-bold hover:bg-white/10 hover:text-white transition-all"
                     >
-                        <RotateCcw className="w-5 h-5" />
-                        Reiniciar
+                        ↺ Reset
                     </button>
                 </div>
 
                 {/* Stats */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
-                    {[
-                        { label: "Ejecuciones", value: execCount },
-                        { label: "Tiempo", value: isRunning ? "..." : "850ms" },
-                        { label: "Leads Procesados", value: dataCount },
-                        { label: "Tasa de Éxito", value: "100%" },
-                    ].map((stat, i) => (
-                        <div key={i} className="bg-white/5 border border-white/10 rounded-xl p-4 text-center">
-                            <div className="text-2xl font-mono font-bold text-white mb-1">{stat.value}</div>
-                            <div className="text-xs text-gray-500 uppercase tracking-wider">{stat.label}</div>
-                        </div>
-                    ))}
+                    <StatCard label="Ejecuciones" value={stats.exec} />
+                    <StatCard label="Tiempo" value={stats.time} />
+                    <StatCard label="Nodos" value={stats.nodes} />
+                    <StatCard label="Éxito" value={stats.success} />
                 </div>
-
             </div>
         </section>
+    );
+}
+
+function StatCard({ label, value }: { label: string, value: any }) {
+    return (
+        <div className="bg-[rgba(12,12,20,0.9)] border border-white/5 rounded-xl p-4 text-center">
+            <div className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#00d4ff] via-[#ff00aa] to-[#8b5cf6] font-mono">
+                {value}
+            </div>
+            <div className="text-[10px] text-white/40 uppercase tracking-widest mt-1">
+                {label}
+            </div>
+        </div>
     );
 }

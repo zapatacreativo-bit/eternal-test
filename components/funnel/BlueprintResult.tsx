@@ -12,14 +12,48 @@ interface BlueprintResultProps {
     answers: QuestionnaireData;
 }
 
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
+import { useRef } from "react";
+
+// ... imports remain the same
+
 export function BlueprintResult({ contact, answers }: BlueprintResultProps) {
     const [loading, setLoading] = useState(true);
+    const contentRef = useRef<HTMLDivElement>(null);
 
     // Simulate generation delay
     useEffect(() => {
         const timer = setTimeout(() => setLoading(false), 2000);
         return () => clearTimeout(timer);
     }, []);
+
+    const handleDownload = async () => {
+        if (!contentRef.current) return;
+
+        try {
+            const canvas = await html2canvas(contentRef.current, {
+                scale: 2, // Better resolution
+                backgroundColor: "#000000", // Force dark background for PDF
+                useCORS: true
+            });
+            const imgData = canvas.toDataURL("image/png");
+
+            const pdf = new jsPDF({
+                orientation: "portrait",
+                unit: "mm",
+                format: "a4"
+            });
+
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+
+            pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+            pdf.save(`Blueprint-IA-${contact.name.replace(/\s+/g, "-")}.pdf`);
+        } catch (err) {
+            console.error("PDF Generation failed", err);
+        }
+    };
 
     if (loading) {
         return (
@@ -45,51 +79,56 @@ export function BlueprintResult({ contact, answers }: BlueprintResultProps) {
 
     return (
         <div className="space-y-8 animate-in fade-in zoom-in duration-500">
-            <div className="text-center space-y-2">
-                <div className="inline-block p-2 rounded-full bg-green-500/10 text-green-400 mb-2 border border-green-500/20">
-                    <CheckCircle className="w-5 h-5 inline mr-2" />
-                    Blueprint Generado con Éxito
+            {/* Printable Content Container */}
+            <div ref={contentRef} className="space-y-8 p-4 rounded-xl bg-black/40">
+                <div className="text-center space-y-2">
+                    <div className="inline-block p-2 rounded-full bg-green-500/10 text-green-400 mb-2 border border-green-500/20">
+                        <CheckCircle className="w-5 h-5 inline mr-2" />
+                        Blueprint Generado con Éxito
+                    </div>
+                    <h3 className="text-2xl font-bold">Hola {contact.name.split(" ")[0]}, aquí está tu plan.</h3>
+                    <p className="text-muted-foreground">Basado en tus objetivos de {answers.goal.toLowerCase()}.</p>
                 </div>
-                <h3 className="text-2xl font-bold">Hola {contact.name.split(" ")[0]}, aquí está tu plan.</h3>
-                <p className="text-muted-foreground">Basado en tus objetivos de {answers.goal.toLowerCase()}.</p>
-            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <MetricCard title="Ahorro Estimado" value="20h/ sem" sub="En tareas manuales" icon={Clock} delay={0.1} />
-                <MetricCard title="ROI Proyectado" value="3.5x" sub="En 6 meses" icon={TrendingUp} delay={0.2} />
-                <MetricCard title="Implementación" value="2-4 Sem" sub="Tiempo estimado" icon={Zap} delay={0.3} />
-            </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <MetricCard title="Ahorro Estimado" value="20h/ sem" sub="En tareas manuales" icon={Clock} delay={0.1} />
+                    <MetricCard title="ROI Proyectado" value="3.5x" sub="En 6 meses" icon={TrendingUp} delay={0.2} />
+                    <MetricCard title="Implementación" value="3-5 Sem" sub="Tiempo estimado" icon={Zap} delay={0.3} />
+                </div>
 
-            <Card className="bg-white/5 border-white/10 overflow-hidden">
-                <CardHeader className="bg-white/5 border-b border-white/5">
-                    <CardTitle className="flex items-center gap-2">
-                        <Bot className="w-5 h-5 text-primary" />
-                        Arquitectura de Agentes Recomendada
-                    </CardTitle>
-                </CardHeader>
-                <CardContent className="p-6 grid gap-4">
-                    {recommendedAgents.map((agent, i) => (
-                        <motion.div
-                            key={agent.title}
-                            initial={{ opacity: 0, x: -10 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: 0.4 + (i * 0.1) }}
-                            className="flex items-start gap-4 p-4 rounded-lg bg-black/20 border border-white/5 hover:border-primary/50 transition-colors"
-                        >
-                            <div className="p-2 rounded-md bg-primary/10 text-primary">
-                                <agent.icon className="w-5 h-5" />
-                            </div>
-                            <div>
-                                <h4 className="font-semibold text-white">{agent.title}</h4>
-                                <p className="text-sm text-muted-foreground">{agent.desc}</p>
-                            </div>
-                        </motion.div>
-                    ))}
-                </CardContent>
-            </Card>
+                <Card className="bg-white/5 border-white/10 overflow-hidden">
+                    <CardHeader className="bg-white/5 border-b border-white/5">
+                        <CardTitle className="flex items-center gap-2">
+                            <Bot className="w-5 h-5 text-primary" />
+                            Arquitectura de Agentes Recomendada
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-6 grid gap-4">
+                        {recommendedAgents.map((agent, i) => (
+                            <motion.div
+                                key={agent.title}
+                                initial={{ opacity: 0, x: -10 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: 0.4 + (i * 0.1) }}
+                                className="flex items-start gap-4 p-4 rounded-lg bg-black/20 border border-white/5 hover:border-primary/50 transition-colors"
+                            >
+                                <div className="p-2 rounded-md bg-primary/10 text-primary">
+                                    <agent.icon className="w-5 h-5" />
+                                </div>
+                                <div>
+                                    <h4 className="font-semibold text-white">{agent.title}</h4>
+                                    <p className="text-sm text-muted-foreground">{agent.desc}</p>
+                                </div>
+                            </motion.div>
+                        ))}
+                    </CardContent>
+                </Card>
+
+                {/* Footer for PDF only (Visual trickery could be added here) */}
+            </div>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-                <Button size="lg" className="bg-primary hover:bg-primary/90 w-full sm:w-auto">
+                <Button size="lg" onClick={handleDownload} className="bg-primary hover:bg-primary/90 w-full sm:w-auto">
                     <Download className="mr-2 w-4 h-4" />
                     Descargar PDF Completo
                 </Button>

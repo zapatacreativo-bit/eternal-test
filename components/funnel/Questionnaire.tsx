@@ -32,10 +32,14 @@ export function Questionnaire({ onSubmit }: QuestionnaireProps) {
     const [step, setStep] = useState(1);
     const totalSteps = 3;
 
-    const { control, handleSubmit, watch, trigger } = useForm<QuestionnaireData>({
+    const { control, handleSubmit, watch, trigger, formState: { errors } } = useForm<QuestionnaireData>({
         resolver: zodResolver(questionnaireSchema),
         defaultValues: {
+            businessType: "",
+            teamSize: "",
             painPoints: [],
+            goal: "",
+            budget: "",
         }
     });
 
@@ -85,6 +89,7 @@ export function Questionnaire({ onSubmit }: QuestionnaireProps) {
                                     </RadioGroup>
                                 )}
                             />
+                            {errors.businessType && <p className="text-red-400 text-sm mt-1">{errors.businessType.message}</p>}
                         </div>
 
                         <div className="space-y-4">
@@ -115,6 +120,7 @@ export function Questionnaire({ onSubmit }: QuestionnaireProps) {
                                     </RadioGroup>
                                 )}
                             />
+                            {errors.teamSize && <p className="text-red-400 text-sm mt-1">{errors.teamSize.message}</p>}
                         </div>
                     </div>
                 )}
@@ -153,6 +159,7 @@ export function Questionnaire({ onSubmit }: QuestionnaireProps) {
                                 </div>
                             )}
                         />
+                        {errors.painPoints && <p className="text-red-400 text-sm mt-1">{errors.painPoints.message}</p>}
                     </div>
                 )}
 
@@ -175,6 +182,7 @@ export function Questionnaire({ onSubmit }: QuestionnaireProps) {
                                     </RadioGroup>
                                 )}
                             />
+                            {errors.goal && <p className="text-red-400 text-sm mt-1">{errors.goal.message}</p>}
                         </div>
 
                         <div className="space-y-4">

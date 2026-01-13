@@ -88,14 +88,14 @@ export function BlueprintResult({ contact, answers }: BlueprintResultProps) {
     return (
         <div className="space-y-8 animate-in fade-in zoom-in duration-500">
             {/* Printable Content Container */}
-            <div ref={contentRef} className="space-y-8 p-4 rounded-xl bg-black/40">
+            <div ref={contentRef} className="space-y-8 p-4 rounded-xl bg-[#0a0a0f]">
                 <div className="text-center space-y-2">
-                    <div className="inline-block p-2 rounded-full bg-green-500/10 text-green-400 mb-2 border border-green-500/20">
+                    <div className="inline-block p-2 rounded-full bg-[#162a1c] text-[#4ade80] mb-2 border border-[#22c55e33]">
                         <CheckCircle className="w-5 h-5 inline mr-2" />
                         Blueprint Generado con Éxito
                     </div>
-                    <h3 className="text-2xl font-bold">Hola {contact.name.split(" ")[0]}, aquí está tu plan.</h3>
-                    <p className="text-muted-foreground">Basado en tus objetivos de {answers.goal.toLowerCase()}.</p>
+                    <h3 className="text-2xl font-bold text-white">Hola {contact.name.split(" ")[0]}, aquí está tu plan.</h3>
+                    <p className="text-[#a1a1aa]">Basado en tus objetivos de {answers.goal.toLowerCase()}.</p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -104,10 +104,10 @@ export function BlueprintResult({ contact, answers }: BlueprintResultProps) {
                     <MetricCard title="Implementación" value="3-5 Sem" sub="Tiempo estimado" icon={Zap} delay={0.3} />
                 </div>
 
-                <Card className="bg-white/5 border-white/10 overflow-hidden">
-                    <CardHeader className="bg-white/5 border-b border-white/5">
-                        <CardTitle className="flex items-center gap-2">
-                            <Bot className="w-5 h-5 text-primary" />
+                <Card className="bg-[#18181b] border-[#27272a] overflow-hidden">
+                    <CardHeader className="bg-[#18181b] border-b border-[#27272a]">
+                        <CardTitle className="flex items-center gap-2 text-white">
+                            <Bot className="w-5 h-5 text-[#8b5cf6]" />
                             Arquitectura de Agentes Recomendada
                         </CardTitle>
                     </CardHeader>
@@ -118,14 +118,14 @@ export function BlueprintResult({ contact, answers }: BlueprintResultProps) {
                                 initial={{ opacity: 0, x: -10 }}
                                 animate={{ opacity: 1, x: 0 }}
                                 transition={{ delay: 0.4 + (i * 0.1) }}
-                                className="flex items-start gap-4 p-4 rounded-lg bg-black/20 border border-white/5 hover:border-primary/50 transition-colors"
+                                className="flex items-start gap-4 p-4 rounded-lg bg-[#000000] border border-[#27272a] hover:border-[#8b5cf6] transition-colors"
                             >
-                                <div className="p-2 rounded-md bg-primary/10 text-primary">
+                                <div className="p-2 rounded-md bg-[#8b5cf620] text-[#8b5cf6]">
                                     <agent.icon className="w-5 h-5" />
                                 </div>
                                 <div>
                                     <h4 className="font-semibold text-white">{agent.title}</h4>
-                                    <p className="text-sm text-muted-foreground">{agent.desc}</p>
+                                    <p className="text-sm text-[#a1a1aa]">{agent.desc}</p>
                                 </div>
                             </motion.div>
                         ))}
@@ -169,12 +169,12 @@ function MetricCard({ title, value, sub, icon: Icon, delay }: any) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay }}
-            className="p-4 rounded-xl bg-white/5 border border-white/10 text-center space-y-1 hover:bg-white/10 transition-colors"
+            className="p-4 rounded-xl bg-[#18181b] border border-[#27272a] text-center space-y-1 hover:bg-[#27272a] transition-colors"
         >
-            <Icon className="w-6 h-6 mx-auto text-primary mb-2 opacity-80" />
+            <Icon className="w-6 h-6 mx-auto text-[#8b5cf6] mb-2 opacity-80" />
             <div className="text-2xl font-bold text-white">{value}</div>
-            <div className="text-sm font-medium text-white/80">{title}</div>
-            <div className="text-xs text-muted-foreground">{sub}</div>
+            <div className="text-sm font-medium text-[#e4e4e7]">{title}</div>
+            <div className="text-xs text-[#a1a1aa]">{sub}</div>
         </motion.div>
     );
 }

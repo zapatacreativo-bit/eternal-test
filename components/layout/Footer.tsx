@@ -7,10 +7,10 @@ export function Footer() {
             <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12">
 
                 <div className="space-y-4">
-                    <div className="flex items-center gap-2">
+                    <Link href="/" className="flex items-center gap-2">
                         <div className="w-6 h-6 rounded-full bg-linear-to-tr from-primary to-purple-500" />
                         <span className="text-lg font-bold text-white">AETHER</span>
-                    </div>
+                    </Link>
                     <p className="text-muted-foreground leading-relaxed">
                         Pioneros en automatización agéntica y soluciones de inteligencia artificial soberana.
                     </p>
@@ -24,10 +24,10 @@ export function Footer() {
                 <div>
                     <h4 className="font-bold text-white mb-4">Servicios</h4>
                     <ul className="space-y-2 text-muted-foreground">
-                        <li><Link href="#services" className="hover:text-primary">Agentes Autónomos</Link></li>
-                        <li><Link href="#services" className="hover:text-primary">Automatización Cognitiva</Link></li>
-                        <li><Link href="#services" className="hover:text-primary">Consultoría Estratégica</Link></li>
-                        <li><Link href="#services" className="hover:text-primary">Sistemas RAG</Link></li>
+                        <li><Link href="/#services" className="hover:text-primary">Agentes Autónomos</Link></li>
+                        <li><Link href="/#services" className="hover:text-primary">Automatización Cognitiva</Link></li>
+                        <li><Link href="/#services" className="hover:text-primary">Consultoría Estratégica</Link></li>
+                        <li><Link href="/#services" className="hover:text-primary">Sistemas RAG</Link></li>
                     </ul>
                 </div>
 
@@ -35,7 +35,7 @@ export function Footer() {
                     <h4 className="font-bold text-white mb-4">Empresa</h4>
                     <ul className="space-y-2 text-muted-foreground">
                         <li><Link href="/about" className="hover:text-primary">Sobre Nosotros</Link></li>
-                        <li><Link href="#blueprint-funnel" className="hover:text-primary">Contacto</Link></li>
+                        <li><Link href="/#blueprint-funnel" className="hover:text-primary">Contacto</Link></li>
                         <li><Link href="/admin" className="hover:text-primary">Portal Cliente</Link></li>
                     </ul>
                 </div>
@@ -43,9 +43,8 @@ export function Footer() {
                 <div>
                     <h4 className="font-bold text-white mb-4">Legal</h4>
                     <ul className="space-y-2 text-muted-foreground">
-                        <li><Link href="/legal" className="hover:text-primary">Aviso Legal</Link></li>
-                        <li><Link href="/privacy" className="hover:text-primary">Política de Privacidad</Link></li>
-                        <li><Link href="/cookies" className="hover:text-primary">Política de Cookies</Link></li>
+                        <li><Link href="/condiciones-de-uso" className="hover:text-primary">Condiciones de Uso</Link></li>
+                        <li><Link href="/politica-de-privacidad" className="hover:text-primary">Política de Privacidad</Link></li>
                     </ul>
                 </div>
 

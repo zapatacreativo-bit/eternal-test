@@ -17,6 +17,11 @@ export const metadata: Metadata = {
   description: "Premium AI Automation & Agentic Solutions.",
 };
 
+import { Navbar } from "@/components/layout/Navbar";
+import { Footer } from "@/components/layout/Footer";
+
+// ... metadata ...
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -27,7 +32,9 @@ export default function RootLayout({
       <body
         className={`${outfit.variable} ${geistMono.variable} antialiased min-h-screen bg-background text-foreground`}
       >
+        <Navbar />
         {children}
+        <Footer />
       </body>
     </html>
   );

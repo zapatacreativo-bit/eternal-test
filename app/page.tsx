@@ -1,5 +1,3 @@
-import { Navbar } from "@/components/layout/Navbar";
-import { Footer } from "@/components/layout/Footer";
 import { ParallaxHero } from "@/components/sections/ParallaxHero";
 import { ServicesGrid } from "@/components/sections/ServicesGrid";
 import { TechAuthority } from "@/components/sections/TechAuthority";
@@ -11,7 +9,6 @@ import { SalesCTA } from "@/components/sections/SalesCTA";
 export default function Home() {
   return (
     <main className="min-h-screen bg-background text-foreground selection:bg-primary/20">
-      <Navbar />
 
       {/* 1. Hero with Parallax Background */}
       <ParallaxHero />
@@ -33,9 +30,6 @@ export default function Home() {
 
       {/* 7. Final Sales Call to Action */}
       <SalesCTA />
-
-      {/* 8. Footer with Links */}
-      <Footer />
     </main>
   );
 }

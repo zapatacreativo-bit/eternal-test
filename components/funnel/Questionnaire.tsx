@@ -16,14 +16,23 @@ interface QuestionnaireProps {
     onSubmit: (data: QuestionnaireData) => void;
 }
 
-const BUSINESS_TYPES = ["Agencia de Marketing", "SaaS / Tech", "E-commerce", "Consultoría", "Inmobiliaria", "Otro"];
+const BUSINESS_TYPES = [
+    "Agencia de Marketing", "SaaS / Tech", "E-commerce", "Consultoría", "Inmobiliaria",
+    "Clínica / Salud", "Despacho Legal", "Logística", "Educación / Info", "Finanzas / Seguros",
+    "Restauración", "Eventos", "Construcción", "Retail Físico", "Otro"
+];
 const TEAM_SIZES = ["1-5", "6-20", "21-50", "50+"];
 const PAIN_POINTS = [
     "Tareas repetitivas manuales",
     "Atención al cliente lenta",
-    "Cofusión en gestión de leads",
+    "Confusión en gestión de leads",
     "Reportes desordenados",
-    "Falta de escalabilidad"
+    "Falta de escalabilidad",
+    "Costes operativos altos",
+    "Baja tasa de cierre",
+    "Fugas de información",
+    "Agenda desorganizada",
+    "Marketing desconectado"
 ];
 const GOALS = ["Ahorrar tiempo operativo", "Reducir costos de personal", "Escalar ventas 2x", "Mejorar calidad de servicio"];
 const BUDGETS = ["< 1.000€", "1.000€ - 5.000€", "5.000€ - 10.000€", "+10.000€"];
@@ -165,18 +174,29 @@ export function Questionnaire({ onSubmit }: QuestionnaireProps) {
 
                 {/* STEP 3: Goals & Budget */}
                 {step === 3 && (
-                    <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
+                    <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-300">
                         <div className="space-y-4">
                             <Label className="text-lg">Tu objetivo principal</Label>
                             <Controller
                                 control={control}
                                 name="goal"
                                 render={({ field }) => (
-                                    <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="space-y-3">
+                                    <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         {GOALS.map((goal) => (
-                                            <div key={goal} className="flex items-center space-x-3 space-y-0">
-                                                <RadioGroupItem value={goal} id={goal} />
-                                                <Label htmlFor={goal} className="font-normal text-base cursor-pointer">{goal}</Label>
+                                            <div key={goal}>
+                                                <RadioGroupItem value={goal} id={goal} className="peer sr-only" />
+                                                <Label
+                                                    htmlFor={goal}
+                                                    className="flex items-center w-full p-4 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 hover:border-white/20 cursor-pointer transition-all peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/20 peer-data-[state=checked]:text-white text-muted-foreground"
+                                                >
+                                                    <div className={cn(
+                                                        "w-4 h-4 rounded-full border border-white/50 mr-3 flex items-center justify-center",
+                                                        field.value === goal ? "border-primary bg-primary" : ""
+                                                    )}>
+                                                        {field.value === goal && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                                                    </div>
+                                                    {goal}
+                                                </Label>
                                             </div>
                                         ))}
                                     </RadioGroup>
@@ -191,12 +211,14 @@ export function Questionnaire({ onSubmit }: QuestionnaireProps) {
                                 control={control}
                                 name="budget"
                                 render={({ field }) => (
-                                    <div className="flex flex-wrap gap-3">
+                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                                         {BUDGETS.map((b) => (
                                             <div key={b} onClick={() => field.onChange(b)}
                                                 className={cn(
-                                                    "px-4 py-2 rounded-lg border text-sm cursor-pointer hover:border-primary transition",
-                                                    field.value === b ? "border-primary bg-primary/20 text-white" : "border-white/10 bg-white/5"
+                                                    "px-4 py-4 rounded-xl border text-sm font-medium cursor-pointer transition-all text-center flex items-center justify-center hover:bg-white/5",
+                                                    field.value === b
+                                                        ? "border-primary bg-primary/20 text-white shadow-[0_0_15px_rgba(124,58,237,0.3)]"
+                                                        : "border-white/10 bg-white/5 text-muted-foreground"
                                                 )}
                                             >
                                                 {b}

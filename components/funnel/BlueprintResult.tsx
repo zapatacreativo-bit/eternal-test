@@ -36,12 +36,13 @@ export function BlueprintResult({ contact, answers }: BlueprintResultProps) {
         setGenerating(true);
         try {
             const canvas = await html2canvas(contentRef.current, {
-                scale: 2, // Better resolution
-                backgroundColor: "#000000", // Force dark background for PDF
-                useCORS: true,
-                logging: false
+                scale: 1, // Reduced to avoid memory crashes
+                backgroundColor: "#000000",
+                logging: true // Enabled for debugging
             } as any);
             const imgData = canvas.toDataURL("image/png");
+
+            // ... (rest of PDF logic is fine)
 
             const pdf = new jsPDF({
                 orientation: "portrait",
@@ -54,9 +55,9 @@ export function BlueprintResult({ contact, answers }: BlueprintResultProps) {
 
             pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
             pdf.save(`Blueprint-IA-${contact.name.replace(/\s+/g, "-")}.pdf`);
-        } catch (err) {
+        } catch (err: any) {
             console.error("PDF Generation failed", err);
-            alert("Hubo un error generando el PDF. Por favor intenta de nuevo.");
+            alert(`Error técnico: ${err.message || JSON.stringify(err)}. Por favor toma una captura y envíala a soporte.`);
         } finally {
             setGenerating(false);
         }

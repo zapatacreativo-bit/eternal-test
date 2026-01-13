@@ -1,26 +1,41 @@
 import { Navbar } from "@/components/layout/Navbar";
-import { Hero } from "@/components/sections/Hero";
+import { Footer } from "@/components/layout/Footer";
+import { ParallaxHero } from "@/components/sections/ParallaxHero";
+import { ServicesGrid } from "@/components/sections/ServicesGrid";
+import { TechAuthority } from "@/components/sections/TechAuthority";
+import { VideoSection } from "@/components/sections/VideoSection";
 import { FlowDiagram } from "@/components/sections/FlowDiagram";
 import { FunnelContainer } from "@/components/funnel/FunnelContainer";
+import { SalesCTA } from "@/components/sections/SalesCTA";
 
 export default function Home() {
   return (
     <main className="min-h-screen bg-background text-foreground selection:bg-primary/20">
       <Navbar />
 
-      {/* Hero Section */}
-      <Hero />
+      {/* 1. Hero with Parallax Background */}
+      <ParallaxHero />
 
-      {/* "Wow" Animation Section */}
+      {/* 2. Detailed Services Grid */}
+      <ServicesGrid />
+
+      {/* 3. "Wow" Flow Animation (Kept from MVP) */}
       <FlowDiagram />
 
-      {/* Funnel Section (The Core Interaction) */}
+      {/* 4. Deep Dive Technical Authority Content */}
+      <TechAuthority />
+
+      {/* 5. Interactive Funnel (Core Feature) */}
       <FunnelContainer />
 
-      {/* Footer / Trust Section */}
-      <footer className="py-12 text-center text-muted-foreground border-t border-white/5 bg-black/20">
-        <p className="text-sm">© 2024 AETHER Intelligence. All rights reserved.</p>
-      </footer>
+      {/* 6. Video Proof Section */}
+      <VideoSection />
+
+      {/* 7. Final Sales Call to Action */}
+      <SalesCTA />
+
+      {/* 8. Footer with Links */}
+      <Footer />
     </main>
   );
 }

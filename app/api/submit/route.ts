@@ -19,6 +19,19 @@ export async function POST(request: Request) {
             },
         });
 
+        // Trigger N8N Automation
+        try {
+            await fetch("https://agencia-ia-madrid.app.n8n.cloud/webhook/blueprint", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(body),
+            });
+        } catch (webhookError) {
+            console.error("N8N Webhook Failed:", webhookError);
+            // Continue execution, do not fail the request to client
+        }
+
+
         return NextResponse.json({ success: true, id: submission.id });
     } catch (error) {
         console.error("Submission Error:", error);

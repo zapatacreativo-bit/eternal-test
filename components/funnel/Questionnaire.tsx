@@ -26,7 +26,7 @@ const PAIN_POINTS = [
     "Falta de escalabilidad"
 ];
 const GOALS = ["Ahorrar tiempo operativo", "Reducir costos de personal", "Escalar ventas 2x", "Mejorar calidad de servicio"];
-const BUDGETS = ["< $1k", "$1k - $5k", "$5k - $10k", "$10k+"];
+const BUDGETS = ["< 1.000€", "1.000€ - 5.000€", "5.000€ - 10.000€", "+10.000€"];
 
 export function Questionnaire({ onSubmit }: QuestionnaireProps) {
     const [step, setStep] = useState(1);
@@ -93,27 +93,26 @@ export function Questionnaire({ onSubmit }: QuestionnaireProps) {
                                 control={control}
                                 name="teamSize"
                                 render={({ field }) => (
-                                    <div className="flex flex-wrap gap-4">
+                                    <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex flex-wrap gap-4">
                                         {TEAM_SIZES.map((size) => (
-                                            <div key={size}>
+                                            <div key={size} className="relative">
                                                 <RadioGroupItem
                                                     value={size}
                                                     id={`size-${size}`}
                                                     className="peer sr-only"
-                                                    onClick={() => field.onChange(size)}
                                                 />
                                                 <Label
                                                     htmlFor={`size-${size}`}
                                                     className={cn(
-                                                        "px-6 py-3 rounded-full border border-muted bg-popover hover:border-primary cursor-pointer transition-all",
-                                                        field.value === size && "bg-primary text-primary-foreground border-primary"
+                                                        "px-6 py-3 rounded-full border border-muted bg-popover hover:border-primary cursor-pointer transition-all block text-center min-w-[80px]",
+                                                        field.value === size ? "bg-primary text-primary-foreground border-primary" : "text-muted-foreground"
                                                     )}
                                                 >
                                                     {size}
                                                 </Label>
                                             </div>
                                         ))}
-                                    </div>
+                                    </RadioGroup>
                                 )}
                             />
                         </div>

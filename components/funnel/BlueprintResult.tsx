@@ -35,20 +35,33 @@ export function BlueprintResult({ contact, answers }: BlueprintResultProps) {
 
         setGenerating(true);
         try {
-            // Force mobile width for vertical 9:16 PDF (Story format)
+            // Capture at a higher resolution width for better text rendering
+            const captureWidth = 800;
+
             const canvas = await html2canvas(contentRef.current, {
-                scale: 3, // Very high resolution
+                scale: 2, // Good resolution
                 useCORS: true,
                 backgroundColor: "#0a0a0f",
-                windowWidth: 400, // Force Mobile View
-                width: 400,
+                windowWidth: captureWidth,
+                width: captureWidth,
                 onclone: (clonedDoc: Document) => {
                     const element = clonedDoc.querySelector('[data-print-target="true"]') as HTMLElement;
                     if (element) {
-                        element.style.width = "400px";
-                        element.style.padding = "20px";
+                        // Force desktop-like width for cleaner layout
+                        element.style.width = `${captureWidth}px`;
+                        element.style.padding = "40px";
                         element.style.margin = "0";
                         element.style.height = "auto";
+
+                        // FIX: Force system font and letter spacing to prevent "squashed" text
+                        element.style.fontFamily = "Arial, Helvetica, sans-serif";
+                        element.style.letterSpacing = "0.5px";
+
+                        // Force Grid to be at least 2 columns if possible or keep stack but cleaner
+                        const grid = element.querySelector('.grid');
+                        if (grid) {
+                            (grid as HTMLElement).style.gap = "20px";
+                        }
                     }
                 }
             } as any);
@@ -66,7 +79,7 @@ export function BlueprintResult({ contact, answers }: BlueprintResultProps) {
             const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
 
             pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-            pdf.save(`Blueprint-Mobile-${contact.name.replace(/\s+/g, "-")}.pdf`);
+            pdf.save(`Blueprint-Executivo-${contact.name.replace(/\s+/g, "-")}.pdf`);
         } catch (err: any) {
             console.error("PDF Generation failed", err);
             alert(`Error técnico: ${err.message || JSON.stringify(err)}. Por favor toma una captura y envíala a soporte.`);

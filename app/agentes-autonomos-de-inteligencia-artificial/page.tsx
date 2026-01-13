@@ -2,7 +2,13 @@ import { Metadata } from "next";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { AgentWorkflowAnimation } from "@/components/sections/AgentWorkflowAnimation";
-import { BrainCircuit, Cpu, Network, ShieldCheck, Zap, BarChart3, Bot, Code2, Database, CheckCircle } from "lucide-react";
+import { EternalProtocol } from "@/components/sections/EternalProtocol";
+import { UseCasesGrid } from "@/components/sections/UseCasesGrid";
+import { SecurityModule } from "@/components/sections/SecurityModule";
+import { AgentFAQ } from "@/components/sections/AgentFAQ";
+import { AIEvolutionTimeline } from "@/components/sections/AIEvolutionTimeline";
+import { BrainCircuit, Database, Zap, ShieldCheck, CheckCircle } from "lucide-react";
+import Link from "next/link";
 
 export const metadata: Metadata = {
     title: "Agentes Autónomos de Inteligencia Artificial | Automatización Soberana 2026",
@@ -18,7 +24,7 @@ export default function AgentesAutonomosPage() {
                 {/* Background Image with Overlay */}
                 <div className="absolute inset-0 z-0">
                     <Image
-                        src="/assets/ai_agent_hero_network_1768327454555.png"
+                        src="/assets/ai-agent-neural-network-hero.png"
                         alt="Red neuronal digital representando agentes autónomos de inteligencia artificial"
                         fill
                         className="object-cover opacity-40"
@@ -43,11 +49,11 @@ export default function AgentesAutonomosPage() {
                     </p>
 
                     <div className="flex flex-col sm:flex-row gap-4 justify-center pt-8">
-                        <Button size="lg" className="bg-primary hover:bg-primary/90 text-white px-8 py-6 text-lg rounded-full glow-component">
-                            Solicitar Diagnóstico IA
+                        <Button size="lg" className="bg-primary hover:bg-primary/90 text-white px-8 py-6 text-lg rounded-full glow-component" asChild>
+                            <Link href="/#blueprint-funnel">Solicitar Diagnóstico IA</Link>
                         </Button>
-                        <Button size="lg" variant="outline" className="border-white/20 text-white hover:bg-white/10 px-8 py-6 text-lg rounded-full">
-                            Ver Demo Técnica
+                        <Button size="lg" variant="outline" className="border-white/20 text-white hover:bg-white/10 px-8 py-6 text-lg rounded-full" asChild>
+                            <Link href="/#services">Ver Demo Técnica</Link>
                         </Button>
                     </div>
                 </div>
@@ -114,7 +120,7 @@ export default function AgentesAutonomosPage() {
                         </div>
                     </div>
 
-                    {/* ANIMATED COMPONENT */}
+                    {/* ANIMATED COMPONENT: 2026 WEBHOOK VISUALIZATION */}
                     <div className="relative">
                         <div className="absolute -inset-4 bg-primary/20 blur-3xl opacity-20" />
                         <AgentWorkflowAnimation />
@@ -124,91 +130,65 @@ export default function AgentesAutonomosPage() {
 
             {/* --- DEEP DIVE CONTENT (SEO: KEYWORD DENSITY & DEPTH) --- */}
             <section className="py-24 px-6">
-                <div className="max-w-3xl mx-auto space-y-16">
+                <div className="max-w-4xl mx-auto space-y-16">
 
+                    {/* NEW TIMELINE SECTION (AI EVOLUTION) */}
+                    <AIEvolutionTimeline />
+
+                    {/* INTERACTIVE METHODOLOGY: THE ETERNAL PROTOCOL */}
                     <article className="prose prose-invert prose-lg max-w-none">
-                        <h3>Metodología de Implementación: El Protocolo Eternal</h3>
-                        <p>
-                            La implementación de <strong>agentes autónomos de inteligencia artificial</strong> no es una instalación de software Plug-and-Play. Requiere una ingeniería de prompts meticulosa, diseño de arquitectura RAG (Retrieval-Augmented Generation) y pruebas exhaustivas.
+                        <h3 className="text-3xl font-bold text-center mb-4 text-white">Descubre el "Protocolo Eternal"</h3>
+                        <p className="text-center text-gray-400 mb-12 max-w-2xl mx-auto">
+                            La implementación no es mágica, es metódica. Navega por las fases de nuestro proceso de despliegue soberano.
                         </p>
-                        <p>
-                            Nuestra metodología "Eternal" garantiza resultados predecibles en un entorno probabilístico:
-                        </p>
-                        <ol>
-                            <li>
-                                <strong>Fase de Observación:</strong> Analizamos los procesos manuales actuales para identificar patrones de decisión.
-                            </li>
-                            <li>
-                                <strong>Diseño de la Arquitectura Cognitiva:</strong> Definimos qué "herramientas" necesita el agente (acceso a CRM, Email, ERP).
-                            </li>
-                            <li>
-                                <strong>Sandbox de Entrenamiento:</strong> El agente opera en un entorno simulado donde humanos validan sus decisiones.
-                            </li>
-                            <li>
-                                <strong>Despliegue Gradual:</strong> Activamos la autonomía progresivamente, empezando por tareas de bajo riesgo.
-                            </li>
-                        </ol>
 
-                        <h3>Casos de Uso en la Industria Española</h3>
-                        <p>
-                            Hemos desplegado agentes para resolver problemas críticos en sectores regulados:
-                        </p>
-                        <ul>
-                            <li>
-                                <strong>Sector Legal:</strong> Agentes que revisan NDAs y contratos estándar, resaltando cláusulas de riesgo basándose en el "playbook" de la firma.
-                            </li>
-                            <li>
-                                <strong>Logística:</strong> Sistemas que negocian tarifas de flete menores automáticamente vía email con proveedores pre-aprobados.
-                            </li>
-                            <li>
-                                <strong>Desarrollo de Software:</strong> Agentes de QA que no solo detectan bugs, sino que proponen el código de corrección y generan el Pull Request.
-                            </li>
-                        </ul>
+                        {/* INTERACTIVE COMPONENT REPLACING TEXT LIST */}
+                        <EternalProtocol />
                     </article>
 
-                    {/* ILLUSTRATION: FUTURE WORKFORCE */}
-                    <div className="relative rounded-3xl overflow-hidden border border-white/10 group">
-                        <Image
-                            src="/assets/future_workforce_ai_1768327491111.png"
-                            alt="Colaboración humano-IA en el entorno laboral del futuro"
-                            width={1024}
-                            height={1024}
-                            className="w-full h-auto group-hover:scale-105 transition-transform duration-700"
-                        />
-                        <div className="absolute bottom-0 left-0 right-0 p-8 bg-gradient-to-t from-black to-transparent">
-                            <p className="text-white font-bold text-xl">El Futuro del Trabajo es Híbrido</p>
-                            <p className="text-gray-300 text-sm">Humanos definiendo estrategias, Agentes ejecutando tácticas.</p>
+                    {/* INTERACTIVE USE CASES GRID */}
+                    <div className="space-y-8">
+                        <h3 className="text-3xl font-bold text-white mb-8">Casos de Uso en la Industria Española</h3>
+                        <UseCasesGrid />
+                    </div>
+
+                    {/* REPLACED LARGE IMAGE WITH CONTEXTUAL SECTION */}
+                    <div className="relative rounded-3xl overflow-hidden border border-white/10 group bg-black/40 p-8 md:p-12 flex flex-col md:flex-row items-center gap-12">
+                        <div className="flex-1 space-y-6">
+                            <h3 className="text-2xl font-bold text-white">Colaboración Humano-IA</h3>
+                            <p className="text-gray-400 leading-relaxed">
+                                En el entorno laboral del futuro, los humanos definen la estrategia y los valores, mientras que los agentes ejecutan las tácticas repetitivas. Esta simbiosis aumenta la productividad exponencialmente sin sacrificar el toque humano.
+                            </p>
+                            <ul className="space-y-2">
+                                <li className="flex items-center gap-2 text-sm text-gray-300">
+                                    <div className="w-2 h-2 rounded-full bg-primary" />
+                                    Supervisión activa ("Human-in-the-loop")
+                                </li>
+                                <li className="flex items-center gap-2 text-sm text-gray-300">
+                                    <div className="w-2 h-2 rounded-full bg-primary" />
+                                    Escalabilidad infinita bajo demanda
+                                </li>
+                            </ul>
+                        </div>
+                        <div className="flex-1 relative h-64 w-full rounded-2xl overflow-hidden border border-white/10">
+                            <Image
+                                src="/assets/human-ai-collaboration-workforce.png"
+                                alt="Colaboración humano-IA"
+                                fill
+                                className="object-cover hover:scale-105 transition-transform duration-700"
+                            />
                         </div>
                     </div>
 
-                    <article className="prose prose-invert prose-lg max-w-none">
-                        <h3>Ética y Seguridad en Agentes Autónomos</h3>
-                        <p>
-                            Un gran poder conlleva una gran responsabilidad. Todos nuestros agentes se rigen por principios de "Human-in-the-loop" para decisiones críticas. Implementamos capas de seguridad, como firewalls semánticos, que impiden que el agente ejecute acciones maliciosas o fuera de política, incluso si su modelo subyacente es "engañado" (jailbroken).
-                        </p>
-                    </article>
+                    {/* NEW SECURITY MODULE */}
+                    <SecurityModule />
 
                 </div>
             </section>
 
             {/* --- FAQ SECTION for SEO RICH SNIPPETS --- */}
-            <section className="py-24 bg-white/5 border-t border-white/10">
-                <div className="max-w-4xl mx-auto px-6">
-                    <h2 className="text-3xl font-bold text-center mb-16">Preguntas Frecuentes sobre Agentes IA</h2>
-                    <div className="grid gap-6">
-                        {[
-                            { q: "¿En qué se diferencian de RPA (Robotic Process Automation)?", a: "Los RPA son rígidos y se rompen si cambia la interfaz. Los agentes autónomos de IA entienden el contexto visual y semántico, adaptándose a cambios." },
-                            { q: "¿Son seguros para datos confidenciales?", a: "Absolutamente. Podemos desplegar agentes en infraestructura local (On-Premise) o nubes privadas, garantizando que los datos nunca entrenen modelos públicos." },
-                            { q: "¿Cuánto tarda la implementación?", a: "Un MVP funcional (Producto Mínimo Viable) suele estar listo en 4-6 semanas, dependiendo de la complejidad de las integraciones." }
-                        ].map((faq, i) => (
-                            <div key={i} className="bg-black/40 border border-white/10 p-6 rounded-xl hover:bg-black/60 transition-colors">
-                                <h4 className="font-bold text-lg text-white mb-2">{faq.q}</h4>
-                                <p className="text-gray-400">{faq.a}</p>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </section>
+            {/* --- FAQ SECTION --- */}
+            <AgentFAQ />
 
             {/* --- FINAL CTA --- */}
             <section className="py-32 px-6 relative overflow-hidden">
@@ -220,8 +200,8 @@ export default function AgentesAutonomosPage() {
                         Descubre el potencial de los agentes autónomos en tu organización hoy mismo.
                     </p>
                     <div className="pt-8">
-                        <Button size="lg" className="bg-white text-black hover:bg-gray-200 px-12 py-8 text-xl rounded-full font-bold shadow-2xl hover:scale-105 transition-transform">
-                            Calcular Potencial con IA
+                        <Button size="lg" className="bg-white text-black hover:bg-gray-200 px-16 py-8 text-2xl rounded-full font-bold shadow-[0_0_50px_rgba(255,255,255,0.3)] hover:shadow-[0_0_80px_rgba(255,255,255,0.5)] hover:scale-105 transition-all duration-300 animate-pulse" asChild>
+                            <Link href="/#blueprint-funnel">Calcular Potencial con IA</Link>
                         </Button>
                     </div>
                 </div>
@@ -229,4 +209,3 @@ export default function AgentesAutonomosPage() {
         </div>
     );
 }
-

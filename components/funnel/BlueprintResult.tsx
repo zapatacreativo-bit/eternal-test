@@ -35,39 +35,38 @@ export function BlueprintResult({ contact, answers }: BlueprintResultProps) {
 
         setGenerating(true);
         try {
-            // Force specific width for PDF generation to ensure Grid layout (3 cols) instead of Mobile (1 col)
+            // Force mobile width for vertical 9:16 PDF (Story format)
             const canvas = await html2canvas(contentRef.current, {
-                scale: 2, // High resolution
+                scale: 3, // Very high resolution
                 useCORS: true,
-                backgroundColor: "#0a0a0f", // Match card background
-                windowWidth: 1200, // Force Desktop Media Queries
-                width: 1200, // Force Canvas Width
+                backgroundColor: "#0a0a0f",
+                windowWidth: 400, // Force Mobile View
+                width: 400,
                 onclone: (clonedDoc: Document) => {
-                    // Ensure the cloned element has fixed width to prevent squashing
                     const element = clonedDoc.querySelector('[data-print-target="true"]') as HTMLElement;
                     if (element) {
-                        element.style.width = "1100px";
-                        element.style.margin = "0 auto";
-                        element.style.padding = "40px";
+                        element.style.width = "400px";
+                        element.style.padding = "20px";
+                        element.style.margin = "0";
+                        element.style.height = "auto";
                     }
                 }
             } as any);
 
             const imgData = canvas.toDataURL("image/png");
 
-            // ... (rest of PDF logic is fine)
-
+            // 9:16 Ratio Format (e.g. 108mm x 192mm)
             const pdf = new jsPDF({
                 orientation: "portrait",
                 unit: "mm",
-                format: "a4"
+                format: [108, 192]
             });
 
             const pdfWidth = pdf.internal.pageSize.getWidth();
             const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
 
             pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-            pdf.save(`Blueprint-IA-${contact.name.replace(/\s+/g, "-")}.pdf`);
+            pdf.save(`Blueprint-Mobile-${contact.name.replace(/\s+/g, "-")}.pdf`);
         } catch (err: any) {
             console.error("PDF Generation failed", err);
             alert(`Error técnico: ${err.message || JSON.stringify(err)}. Por favor toma una captura y envíala a soporte.`);

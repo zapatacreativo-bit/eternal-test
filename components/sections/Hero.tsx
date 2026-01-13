@@ -48,7 +48,7 @@ export function Hero() {
                     className="flex flex-col sm:flex-row items-center justify-center gap-4"
                 >
                     <Button size="lg" className="h-14 px-8 text-base bg-primary hover:bg-primary/90 rounded-full shadow-[0_0_20px_-5px_var(--color-primary)]">
-                        Generar Blueprint IA
+                        Calcula Nuestro Potencial
                         <ArrowRight className="ml-2 w-5 h-5" />
                     </Button>
                     <Button size="lg" variant="ghost" className="h-14 px-8 text-base text-white hover:bg-white/5 rounded-full">

@@ -41,7 +41,7 @@ export function FunnelContainer() {
         <section id="blueprint-funnel" className="py-24 px-6 relative bg-black/40">
             <div className="max-w-3xl mx-auto">
                 <div className="text-center mb-12">
-                    <h2 className="text-3xl md:text-4xl font-bold mb-4">Genera tu Blueprint IA</h2>
+                    <h2 className="text-3xl md:text-4xl font-bold mb-4">Calcula Nuestro Potencial con IA Agéntica</h2>
                     <p className="text-muted-foreground">
                         Descubre en 3 minutos cómo la IA puede transformar tu negocio.
                         {step === "contact" && " Comienza con tus datos."}

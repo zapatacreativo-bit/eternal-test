@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Phone, ArrowRight } from "lucide-react";
 import Image from "next/image";
+import { PixelCanvas } from "@/components/ui/pixel-canvas";
 
 export function SalesCTA() {
     return (
@@ -27,13 +28,33 @@ export function SalesCTA() {
                 </p>
 
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-6 pt-4">
-                    <Button size="lg" className="h-16 px-8 text-lg bg-white text-black hover:bg-white/90 rounded-full font-bold">
-                        <Phone className="mr-2 w-5 h-5" />
-                        Agendar Llamada
+                    <Button size="lg" className="group relative h-16 px-8 text-lg bg-white text-black hover:bg-white/90 rounded-full font-bold overflow-hidden border-0">
+                        <PixelCanvas
+                            gap={5}
+                            speed={40}
+                            colors={["#e0f2fe", "#7dd3fc", "#0ea5e9"]}
+                            variant="icon"
+                            noFocus
+                            className="opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                        />
+                        <div className="relative z-10 flex items-center">
+                            <Phone className="mr-2 w-5 h-5" />
+                            Agendar Llamada
+                        </div>
                     </Button>
-                    <Button size="lg" variant="outline" className="h-16 px-8 text-lg border-white/20 text-white hover:bg-white/10 rounded-full backdrop-blur-md">
-                        Completar Formulario
-                        <ArrowRight className="ml-2 w-5 h-5" />
+                    <Button size="lg" variant="outline" className="group relative h-16 px-8 text-lg border-white/20 text-white hover:bg-white/10 rounded-full backdrop-blur-md overflow-hidden">
+                        <PixelCanvas
+                            gap={5}
+                            speed={40}
+                            colors={["#a855f7", "#d8b4fe", "#ffffff"]}
+                            variant="icon"
+                            noFocus
+                            className="opacity-0 group-hover:opacity-30 transition-opacity duration-300"
+                        />
+                        <div className="relative z-10 flex items-center">
+                            Completar Formulario
+                            <ArrowRight className="ml-2 w-5 h-5" />
+                        </div>
                     </Button>
                 </div>
 

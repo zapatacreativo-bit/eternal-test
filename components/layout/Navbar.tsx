@@ -40,13 +40,13 @@ export function Navbar() {
             {/* 4. CTA Button (Right - Visible on Mobile) */}
             <div className="z-50 shrink-0">
                 <Link href="tel:+34646544645">
-                    <ShimmerButton className="shadow-2xl hover:shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:scale-105 transition-all text-xs md:text-sm px-3 py-2 md:px-6 md:py-3 h-10 md:h-12">
+                    <ShimmerButton className="shadow-2xl hover:scale-105 transition-all text-xs md:text-sm px-3 py-2 md:px-6 md:py-3 h-10 md:h-12 md:bg-gradient-to-r md:from-[#00d4ff] md:via-[#ff00aa] md:to-[#8b5cf6] md:shadow-[0_0_20px_rgba(0,212,255,0.4)] md:hover:shadow-[0_0_40px_rgba(255,0,170,0.6)] md:border-0 group">
                         <span className="flex items-center gap-2">
                             <span className="relative flex h-2 w-2">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75 md:bg-white"></span>
+                                <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500 md:bg-white"></span>
                             </span>
-                            <span className="hidden md:inline font-bold">CONTACTO</span>
+                            <span className="hidden md:inline font-bold text-white">CONTACTO</span>
                             <Phone className="md:hidden w-4 h-4 text-white" />
                         </span>
                     </ShimmerButton>

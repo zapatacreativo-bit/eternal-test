@@ -3,11 +3,11 @@
 import { useScroll, useTransform, motion } from "framer-motion";
 import { useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight, Sparkles, MapPin } from "lucide-react";
 import Image from "next/image";
 import { PixelCanvas } from "@/components/ui/pixel-canvas";
 
-export function ParallaxHero() {
+export function HeroSeoMadrid() {
     const ref = useRef(null);
     const { scrollYProgress } = useScroll({
         target: ref,
@@ -25,15 +25,16 @@ export function ParallaxHero() {
                 style={{ y, opacity }}
                 className="absolute inset-0 z-0"
             >
+                {/* Reusing the same hero bg or we could ask for a new madrid one. Using hero-bg for consistency */}
                 <Image
                     src="/hero-bg.png"
-                    alt="Neural Network Background"
+                    alt="Inteligencia Artificial en Madrid"
                     fill
                     className="object-cover"
                     priority
                 />
                 <div className="absolute inset-0 bg-black/60 backdrop-blur-xs" />
-                <div className="absolute inset-0 bg-linear-to-b from-black/0 via-black/20 to-background" />
+                <div className="absolute inset-0 bg-linear-to-b from-black/20 via-black/40 to-[#05050a]" />
             </motion.div>
 
             <div className="relative z-10 text-center max-w-5xl px-6 space-y-8">
@@ -41,22 +42,22 @@ export function ParallaxHero() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.8 }}
-                    className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-white/10 bg-white/5 backdrop-blur-md"
+                    className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-cyan-500/30 bg-cyan-950/30 backdrop-blur-md"
                 >
-                    <Sparkles className="w-4 h-4 text-primary" />
-                    <span className="text-sm font-medium text-white/80">La Nueva Era de la Automatización</span>
+                    <MapPin className="w-4 h-4 text-cyan-400" />
+                    <span className="text-sm font-bold text-cyan-200 uppercase tracking-widest">Agencia IA en Madrid</span>
                 </motion.div>
 
                 <motion.h1
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.8, delay: 0.2 }}
-                    className="text-5xl md:text-8xl font-bold tracking-tight leading-none"
+                    className="text-5xl md:text-7xl font-bold tracking-tight leading-tight"
                 >
-                    <span className="text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">ESCALA</span>
+                    <span className="text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">SERVICIOS DE</span>
                     <br />
-                    <span className="text-transparent bg-clip-text bg-linear-to-r from-primary via-purple-400 to-cyan-400 animate-pulse">
-                        SIN LÍMITES
+                    <span className="text-transparent bg-clip-text bg-linear-to-r from-cyan-400 via-purple-500 to-pink-500 animate-pulse">
+                        INTELIGENCIA ARTIFICIAL
                     </span>
                 </motion.h1>
 
@@ -66,9 +67,9 @@ export function ParallaxHero() {
                     transition={{ duration: 0.8, delay: 0.4 }}
                     className="text-xl md:text-2xl text-white/80 max-w-3xl mx-auto font-light leading-relaxed"
                 >
-                    Diseñamos ecosistemas de Agentes IA que operan tu negocio.
+                    Transformamos empresas en Madrid con <span className="text-cyan-300 font-semibold">Agentes Autónomos</span> y <span className="text-purple-300 font-semibold">Automatización Cognitiva</span>.
                     <br className="hidden md:block" />
-                    De la ineficiencia humana a la <span className="text-white font-semibold">Soberanía Digital</span>.
+                    El futuro de tu negocio empieza aquí, en la capital de la innovación.
                 </motion.p>
 
                 <motion.div
@@ -79,32 +80,21 @@ export function ParallaxHero() {
                 >
                     <Button
                         size="lg"
-                        onClick={() => document.getElementById('blueprint-funnel')?.scrollIntoView({ behavior: 'smooth' })}
-                        className="group relative h-16 px-10 text-lg bg-primary hover:bg-primary/90 rounded-full shadow-[0_0_30px_-5px_var(--color-primary)] transition-shadow overflow-hidden"
+                        className="group relative h-16 px-10 text-lg bg-white/10 hover:bg-white/20 border border-white/20 text-white rounded-full backdrop-blur-md transition-all hover:scale-105 overflow-hidden"
+                        onClick={() => document.querySelector('#contacto')?.scrollIntoView({ behavior: 'smooth' })}
                     >
                         <PixelCanvas
-                            gap={5}
-                            speed={40}
-                            colors={["#a855f7", "#3b82f6", "#ffffff"]}
+                            gap={10}
+                            speed={35}
+                            colors={["#22d3ee", "#e879f9", "#ffffff"]}
                             variant="icon"
                             noFocus
-                            className="opacity-0 group-hover:opacity-40 transition-opacity duration-300"
+                            className="opacity-0 group-hover:opacity-40 transition-opacity duration-500"
                         />
                         <div className="relative z-10 flex items-center">
-                            Calcula Nuestro Potencial
+                            Solicitar Consultoría Madrid
                             <ArrowRight className="ml-2 w-6 h-6" />
                         </div>
-                    </Button>
-                    <Button size="lg" variant="outline" className="group relative h-16 px-10 text-lg text-white border-white/20 hover:bg-white/10 rounded-full backdrop-blur-md overflow-hidden">
-                        <PixelCanvas
-                            gap={10}
-                            speed={25}
-                            colors={["#ffffff", "#cccccc"]}
-                            variant="icon"
-                            noFocus
-                            className="opacity-0 group-hover:opacity-20 transition-opacity duration-300"
-                        />
-                        <span className="relative z-10">Ver Casos de Éxito</span>
                     </Button>
                 </motion.div>
             </div>
@@ -115,8 +105,7 @@ export function ParallaxHero() {
                 transition={{ repeat: Infinity, duration: 2 }}
                 className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
             >
-                <span className="text-[10px] uppercase tracking-widest text-white/50">Scroll</span>
-                <div className="w-[1px] h-16 bg-linear-to-b from-transparent via-primary to-transparent" />
+                <div className="w-[1px] h-16 bg-linear-to-b from-transparent via-cyan-500 to-transparent" />
             </motion.div>
 
         </section>
